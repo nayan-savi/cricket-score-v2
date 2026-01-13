@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cricket Score</title>
+    <style>
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            color: #fff;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 97vh;
+            background-image: url("background4.jpg");
+        }
+
+        .container {
+            background-color: rgb(255, 255, 255, 0.8);
+            color: #2c3e50;
+            padding: 20px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .score-container {
+            text-align: center;
+            display: flex;
+            justify-content: center;
+        }
+
+        .score {
+            font-size: 2.5em;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+
+        .over {
+            margin: 35px 0;
+        }
+
+        .buttons button {
+            background: #3498db;
+            color: #fff;
+            padding: 10px 15px;
+            margin: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .buttons button:hover {
+            background: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .log-container {
+            margin: 20px 0;
+            display: flex;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #f1f1f1;
+            max-width: 100%;
+            height: 50px;
+        }
+
+        .log-container .ball-log {
+            background: #3498db;
+            color: #fff;
+            width: 50px;
+            height: 50px;
+            min-width: 50px;
+            min-height: 50px;
+            border-radius: 50%;
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-right: 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            flex-shrink: 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #2c3e50;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.3);
+            z-index: 10;
+            text-align: center;
+            width: 75%;
+        }
+
+        .popup button {
+            background: #2980b9;
+            color: #fff;
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .popup .cancel-btn {
+            background: #e74c3c;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 5;
+        }
+
+        table {
+            width: 100%;
+            font-size: 1.8rem;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid grey;
+        }
+
+        .red {
+            background: #e74c3c !important;
+        }
+
+        .extra {
+            background: gray !important;
+        }
+
+        .run {
+            background: #fff !important;
+            color: #000 !important;
+        }
+
+        .four {
+            background: orange !important;
+        }
+
+        .six {
+            background: green !important;
+        }
+
+        .shade {
+            background: lightgray;
+        }
+
+        input {
+            height: 30px;
+        }
+
+        #start-container {
+            border: 1px solid gray;
+            padding: 10px;
+        }
+
+        .error {
+            color: red;
+        }
+
+        .restart {
+            justify-content: left;
+            display: flex;
+        }
+
+        .won {
+            font-size: 3.5rem;
+            color: green;
+            font-weight: bold;
+        }
+
+        .givenTarget {
+            font-size: 3.5rem;
+            color: red;
+            font-weight: bold;
+        }
+
+        .note {
+            font-style: italic;
+            color: red;
+        }
+
+        .innings {
+            background: green;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .radio {
+            width: 25px;
+        }
+
+        .lable-radio {
+            display: flex;
+            align-items: center;
+        }
+
+        .filed {
+            font-weight: bold;
+        }
+
+        .out-btns>div>button {
+            width: 50px;
+        }
+
+        .players-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .playerDisplay {
+            display: flex;
+            align-items: center;
+        }
+
+        .active-player {
+            border: 2px solid gold;
+            background-color: rgba(255, 215, 0, 0.2);
+            border-radius: 5px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="
+                position: absolute;
+                top: 0;
+                left: 0;
+                color: #000;
+                padding: 10px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            ">
+        <input type="checkbox" id="selectAudio" style="width: 18px" onclick="loadAudio()" />
+        Audio
+    </div>
+    <div id="audios"></div>
+    <div class="container">
+        <div id="start-container">
+            <div style="
+                        justify-content: center;
+                        display: flex;
+                        align-items: center;
+                    ">
+                <label class="filed"> Select Innings: </label>
+                <label class="lable-radio">
+                    <input type="radio" name="innings" id="1st" class="radio" onclick="selectedInnings(1)" checked />
+                    1st
+                </label>
+
+                <label class="lable-radio">
+                    <input type="radio" name="innings" id="2nd" class="radio" onclick="selectedInnings(2)" />
+                    2nd
+                </label>
+            </div>
+            <br />
+            <div>
+                <div>
+                    <label class="filed"> Player 1 Name: </label>
+                    <input id="player1Name" type="text" placeholder="Striker" />
+                </div>
+                <br />
+                <div>
+                    <label class="filed"> Player 2 Name: </label>
+                    <input id="player2Name" type="text" placeholder="Non-Striker" />
+                </div>
+            </div>
+            <br />
+            <div>
+                <label class="filed"> Enter Overs: </label>
+                <input id="totalOvers" type="number" name="overs" required />
+                <div>
+                    <span id="overs-error" class="error">Overs is required</span>
+                </div>
+            </div>
+            <br />
+            <div>
+                <label class="filed"> Enter Target: </label>
+                <input id="target" type="number" name="target" disabled />
+                <div>
+                    <span id="target-error" class="error">Target is required</span>
+                </div>
+            </div>
+            <br />
+            <div>
+                <button class="buttons" style="
+                            padding: 8px;
+                            width: 150px;
+                            background: darkblue;
+                            color: #fff;
+                        " onclick="startScoring()">
+                    Start
+                </button>
+                <div class="note">
+                    Note: This application is designed exclusively for
+                    tracking scores in practice matches. The data will be
+                    stored only until the browser or tab is closed.
+                </div>
+            </div>
+        </div>
+        <div id="back">
+            <button onclick="restart()" class="restart">back</button>
+            <div id="innings" class="innings"></div>
+        </div>
+        <div id="won">
+            <div class="won">You Won!!</div>
+        </div>
+        <div>
+            <div class="givenTarget" id="givenTarget"></div>
+        </div>
+        <div id="score-container">
+            <h1>🏏 Cricket Score</h1>
+            <div class="score-container">
+                <div class="score">
+                    <span id="score">0</span>/<span id="wickets">0</span>
+                </div>
+                <div class="over">
+                    (<span id="overs">0</span>.<span id="balls">0</span>/<span id="boardTotalOvers">0</span>)
+                </div>
+            </div>
+            <div>
+                <div>
+                    <div class="players-container">
+                        <div id="player1Container">
+                            <span id="player1"></span> <span id="player1Runs"></span> (<span id="player1Balls"></span>)
+                        </div>
+                        <div>
+                            <button onclick="rotateStrike()">Swap</button>
+                        </div>
+                        <div id="player2Container">
+                            <span id="player2"></span> <span id="player2Runs"></span> (<span id="player2Balls"></span>)
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="color: red" id="requiredRuns"></div>
+            <div class="log-container" id="logContainer"></div>
+
+            <div class="buttons">
+                <table>
+                    <tr>
+                        <td onclick="play(0);addRuns(0)">0</td>
+                        <td onclick="play(1);addRuns(1)">1</td>
+                        <td onclick="play(2);addRuns(2)">2</td>
+                        <td class="shade" onclick="undo()">UNDO</td>
+                    </tr>
+                    <tr>
+                        <td onclick="play(3);addRuns(3)">3</td>
+                        <td onclick="play(4);addRuns(4)">4</td>
+                        <td onclick="play(6);addRuns(6)">6</td>
+                        <td class="shade" onclick="showOutPopup()" style="color: #e74c3c">
+                            OUT
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="shade" onclick="showPopup('WD')">WD</td>
+                        <td class="shade" onclick="showPopup('NB')">NB</td>
+                        <td class="shade" onclick="showPopup('BY')">BYE</td>
+                        <td class="shade" onclick="showPopup('LB')">LB</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="handleOverlayClick()"></div>
+    <div class="popup" id="popup">
+        <h3 id="popupTitle"></h3>
+        <div id="popupButtons"></div>
+        <button class="cancel-btn" onclick="hidePopup()">Cancel</button>
+    </div>
+
+    <div class="popup" id="popupout">
+        <div style="
+                    display: flex;
+                    justify-content: center;
+                    margin-bottom: 10px;
+                ">
+            <div>
+                <h4>Runs Scored</h4>
+                <input type="number" style="width: 100px" id="scored" placeholder="runs" />
+            </div>
+
+        </div>
+        <!-- <div>
+            <div>Player</div>
+            <div class="playerDisplay">
+                <input type="radio" name="player" id="player1" />
+                <label for="player1" id="player1NameDisplay">Player 1</label>
+            </div>
+            <div class="playerDisplay">
+                <input type="radio" name="player" id="player2" />
+                <label for="player2" id="player2NameDisplay">Player 2</label>
+            </div>
+        </div> -->
+        <button class="cancel-btn" onclick="play('out');addWicket();">
+            OUT
+        </button>
+        <button class="" onclick="hidePopup()">Cancel</button>
+    </div>
+
+    <div class="popup" id="popupNewPlayer">
+        <h3 id="newPlayerTitle">Enter New Player Name</h3>
+        <div>
+            <input type="text" id="newPlayerName" placeholder="New Player Name" style="width: 80%; padding: 5px;" />
+        </div>
+        <div style="margin-top: 15px;">
+            <button onclick="addNewPlayer()">Add Player</button>
+        </div>
+    </div>
+
+    <!-- Match Summary Popup -->
+    <div class="popup" id="popupSummary" style="width: 90%; max-height: 80vh; overflow-y: auto;">
+        <h3>Match Summary</h3>
+        <table id="summaryTable" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 1rem;">
+            <thead>
+                <tr style="background: #f1f1f1;">
+                    <th style="padding: 8px; border: 1px solid #ddd;">Player</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Runs</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Balls</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">SR</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="summaryBody">
+                <!-- Rows will be added here -->
+            </tbody>
+        </table>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <button onclick="downloadSummary()" style="background: #27ae60;">Download Summary</button>
+            <button onclick="restart()" class="cancel-btn">Restart Game</button>
+        </div>
+    </div>
+
+    <script>
+        const audioList = ["0", "1", "2", "3", "4", "6", "out", "over"];
+        let score = 0;
+        let wickets = 0;
+        let balls = 0;
+        let overs = 0;
+        let actions = [];
+        let currentStriker = sessionStorage.getItem("currentStriker") || "player1";
+        const popupNewPlayer = document.getElementById("popupNewPlayer");
+        const popupSummary = document.getElementById("popupSummary");
+        const newPlayerNameInput = document.getElementById("newPlayerName");
+
+        let totalOvers = parseInt(
+            sessionStorage.getItem("totalOvers") || 0
+        );
+        let target = parseInt(sessionStorage.getItem("target") || 0);
+
+        const logContainer = document.getElementById("logContainer");
+        const popup = document.getElementById("popup");
+        const popupout = document.getElementById("popupout");
+        const overlay = document.getElementById("overlay");
+        const popupTitle = document.getElementById("popupTitle");
+        const popupButtons = document.getElementById("popupButtons");
+        const popupOutButton = document.getElementById("popupOutButton");
+
+        const startContainer = document.getElementById("start-container");
+        const scoreContainer = document.getElementById("score-container");
+        const oversError = document.getElementById("overs-error");
+        const targetError = document.getElementById("target-error");
+        const requiredRuns = document.getElementById("requiredRuns");
+        const won = document.getElementById("won");
+        const back = document.getElementById("back");
+        const givenTarget = document.getElementById("givenTarget");
+        const totalOversDocument = document.getElementById("totalOvers");
+        const targetDocument = document.getElementById("target");
+        const inningsDisplay = document.getElementById("innings");
+        const player1Name = document.getElementById("player1Name");
+        const player2Name = document.getElementById("player2Name");
+
+        function startScoring() {
+            totalOvers = parseInt(totalOversDocument.value);
+            target = parseInt(targetDocument.value);
+            showInnings();
+            showRequired();
+
+            const isValid = validate();
+            if (!isValid) {
+                return;
+            }
+
+            sessionStorage.setItem("totalOvers", totalOvers);
+            sessionStorage.setItem("target", target);
+            sessionStorage.setItem("player1", JSON.stringify({ name: player1Name.value, runs: 0, balls: 0 }));
+
+            sessionStorage.setItem("player2", JSON.stringify({ name: player2Name.value, runs: 0, balls: 0 }));
+            sessionStorage.setItem("currentStriker", "player1");
+            currentStriker = "player1";
+            if (totalOvers == 0) {
+                scoreContainer.style.display = "none";
+                oversError.style.display = "none";
+                targetError.style.display = "none";
+                won.style.display = "none";
+                back.style.display = "none";
+                sessionStorage.setItem("innings", 1);
+            }
+            if (!isNaN(target)) {
+            }
+
+            scoreContainer.style.display = "";
+            startContainer.style.display = "none";
+            back.style.display = "";
+            document.getElementById("boardTotalOvers").textContent =
+                totalOvers;
+            loadFromSessionStorage();
+        }
+
+        function validate() {
+            const innings = sessionStorage.getItem("innings");
+            const isOversInvalid = isNaN(totalOvers) || totalOvers == 0;
+            const isTargetInvalid = isNaN(target) || target == 0;
+
+            if (innings == 1 && isOversInvalid) {
+                oversError.style.display = "";
+                return false;
+            }
+
+            if (innings == 2) {
+                if (isOversInvalid) {
+                    oversError.style.display = "";
+                }
+
+                if (isTargetInvalid) {
+                    targetError.style.display = "";
+                }
+
+                if (isOversInvalid || isTargetInvalid) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        function showInnings() {
+            if (isNaN(target)) {
+                inningsDisplay.textContent = "1st Innings";
+            } else {
+                inningsDisplay.textContent = "2nd Innings";
+            }
+        }
+
+        function showRequired() {
+            requiredRuns.style.display = "";
+            if (target > 0) {
+                requiredRuns.textContent = `Required ${target - score} of ${totalOvers * 6 - (overs * 6 + balls)
+                    } balls`;
+            } else {
+                requiredRuns.style.display = "none";
+            }
+
+            if (target - score <= 0) {
+                won.style.display = "";
+                back.style.display = "";
+                scoreContainer.style.display = "none";
+                startContainer.style.display = "none";
+                showMatchSummary("You Won!");
+            }
+        }
+
+        function updateDisplay() {
+            document.getElementById("score").textContent = score;
+            document.getElementById("wickets").textContent = wickets;
+            document.getElementById("overs").textContent = overs;
+            document.getElementById("balls").textContent = balls;
+            document.getElementById("player1").textContent = JSON.parse(sessionStorage.getItem("player1")).name;
+            document.getElementById("player2").textContent = JSON.parse(sessionStorage.getItem("player2")).name;
+            document.getElementById("player1Runs").textContent = JSON.parse(sessionStorage.getItem("player1")).runs;
+            document.getElementById("player2Runs").textContent = JSON.parse(sessionStorage.getItem("player2")).runs;
+            document.getElementById("player1Balls").textContent = JSON.parse(sessionStorage.getItem("player1")).balls;
+            document.getElementById("player2Balls").textContent = JSON.parse(sessionStorage.getItem("player2")).balls;
+
+
+
+            const p1Container = document.getElementById("player1Container");
+            const p2Container = document.getElementById("player2Container");
+
+            p1Container.classList.remove("active-player");
+            p2Container.classList.remove("active-player");
+
+            if (currentStriker === "player1") {
+                p1Container.classList.add("active-player");
+            } else {
+                p2Container.classList.add("active-player");
+            }
+
+            if (score == 0 && overs == 0 && balls == 0) {
+                logContainer.innerHTML = "";
+            }
+            showRequired();
+            saveToSessionStorage();
+            overCompleted();
+        }
+
+        function addRuns(runs) {
+            // LOG ACTION BEFORE MODIFYING STATE
+            logAction(runs, runs == 4 ? "four" : runs == 6 ? "six" : "run");
+
+            score += runs;
+
+            // Update individual score
+            const currentPlayerKey = currentStriker;
+            const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
+            playerData.runs += runs;
+            playerData.balls += 1;
+            sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
+
+            addBall();
+
+            if (runs % 2 !== 0) {
+                rotateStrike();
+            }
+        }
+
+        function addWicket() {
+            const runScored = document.getElementById("scored");
+            let runs = 0;
+            if (runScored.value > 0) {
+                runs = parseInt(runScored.value);
+            }
+
+            // LOG ACTION BEFORE MODIFYING STATE (including the extra runs)
+            logAction(runScored.value, "red", "W");
+
+            if (runs > 0) {
+                score += runs;
+            }
+
+            // Update individual score for wicket ball
+            const currentPlayerKey = currentStriker;
+            const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
+            playerData.runs += runs;
+            playerData.balls += 1;
+            sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
+
+            wickets += 1;
+            addBall();
+
+            hidePopup();
+
+            // Handle Dismissal
+            handleDismissal();
+        }
+
+        function handleDismissal() {
+            const player1Radio = document.getElementById("player1");
+            const player2Radio = document.getElementById("player2");
+
+            let dismissedPlayerKey = "";
+            if (player1Radio.checked) dismissedPlayerKey = "player1";
+            else if (player2Radio.checked) dismissedPlayerKey = "player2";
+
+            // If manual selection didn't happen or logic is ambiguous, default to current striker?
+            // The UI has radio buttons, so we trust them. But if user didn't select, we might have an issue.
+            // Let's assume user selects correctly or we default to currentStriker if none checked??
+            // Actually, the popup is "showOutPopup", user selects radio.
+
+            if (!dismissedPlayerKey) {
+                // Fallback or error? Let's default to currentStriker if logic permits, 
+                // but radio is explicit. Let's assume user picks.
+                dismissedPlayerKey = currentStriker;
+            }
+
+            // Save fallen wicket
+            const dismissedPlayerData = JSON.parse(sessionStorage.getItem(dismissedPlayerKey));
+            const fallenWickets = JSON.parse(sessionStorage.getItem("fallenWickets") || "[]");
+            fallenWickets.push({
+                name: dismissedPlayerData.name,
+                runs: dismissedPlayerData.runs,
+                balls: dismissedPlayerData.balls,
+                wicketNumber: wickets
+            });
+            sessionStorage.setItem("fallenWickets", JSON.stringify(fallenWickets));
+
+            // Show New Player Popup
+            showNewPlayerPopup(dismissedPlayerKey);
+        }
+
+        function showNewPlayerPopup(keyToReplace) {
+            popupNewPlayer.setAttribute("data-replace-key", keyToReplace);
+            popupNewPlayer.style.display = "block";
+            overlay.style.display = "block";
+            newPlayerNameInput.value = "";
+            newPlayerNameInput.focus();
+        }
+
+        function addNewPlayer() {
+            const keyToReplace = popupNewPlayer.getAttribute("data-replace-key");
+            const newName = newPlayerNameInput.value;
+
+            if (newName.trim() === "") {
+                alert("Please enter a player name");
+                return;
+            }
+
+            // Update Session Storage with new player
+            sessionStorage.setItem(keyToReplace, JSON.stringify({ name: newName, runs: 0, balls: 0 }));
+
+            // Update current striker if the dismissed player was the striker
+            // The new player becomes the striker usually? Or does strike invoke logic?
+            // "once player got out select the option on the outpopup ... keep track ... provide add player button"
+            // Usually new batsman takes strike if crossed, or non-striker if not. 
+            // For simplicity, let's assume new player takes the place of the dismissed one.
+            // If the dismissed player was currentStriker, new player becomes currentStriker.
+            // If dismissed player was non-striker (run out), new player becomes non-striker.
+
+            // However, we just replaced the data in 'keyToReplace' ('player1' or 'player2'). 
+            // The 'currentStriker' variable holds 'player1' or 'player2'. 
+            // So if currentStriker was 'player1' and we replaced 'player1', the pointer is correct.
+
+            hidePopup();
+            updateDisplay();
+        }
+
+        function addBall() {
+            balls += 1;
+            if (balls >= 6) {
+                setTimeout(() => {
+                    play("over");
+                }, 1000);
+                overs += 1;
+                balls = 0;
+                rotateStrike(); // Rotate strike at end of over
+            }
+            updateDisplay();
+        }
+
+        function rotateStrike() {
+            currentStriker = currentStriker === "player1" ? "player2" : "player1";
+            sessionStorage.setItem("currentStriker", currentStriker);
+            updateDisplay();
+        }
+
+        function showPopup(type) {
+            popup.style.display = "block";
+            overlay.style.display = "block";
+            popupTitle.textContent = `Select Runs for ${type}`;
+            popupButtons.innerHTML = "";
+
+            for (let i = 0; i <= 6; i++) {
+                const btn = document.createElement("button");
+                btn.textContent = `${type} + ${i}`;
+                btn.onclick = () => {
+                    handleExtra(type, "extra", i);
+                    hidePopup();
+                };
+                popupButtons.appendChild(btn);
+            }
+        }
+
+        function showOutPopup() {
+            popupout.style.display = "block";
+            overlay.style.display = "block";
+            //  document.getElementById("player1NameDisplay").textContent = JSON.parse(sessionStorage.getItem("player1")).name;
+            //  document.getElementById("player2NameDisplay").textContent = JSON.parse(sessionStorage.getItem("player2")).name;
+            document.getElementById("scored").value = undefined;
+        }
+
+        function handleExtra(type, color, runs) {
+            score += 1 + runs; // 1 for the extra plus any additional runs
+            if (type == "BY" || type == "LB") {
+                addBall();
+            }
+            logAction(runs, color, type);
+            updateDisplay();
+        }
+
+        function logAction(runs, color, type = "") {
+            // Snapshot current state BEFORE this action fully resolves (or rather, the state IS the result of previous actions, 
+            // but since we call logAction inside addRuns/addWicket, we really want to capture the state *before* we applied the changes? 
+            // WAIT. existing code called logAction AFTER updating score. 
+            // If we want UNDO to work, we need to save the state AS IT WAS BEFORE the action.
+            // In my updated `addRuns` above, I called `logAction` FIRST.
+            // So now `score` etc are at their OLD values. Perfect.
+
+            const stateSnapshot = {
+                score: score,
+                wickets: wickets,
+                balls: balls,
+                overs: overs,
+                currentStriker: currentStriker,
+                player1: JSON.parse(sessionStorage.getItem("player1")),
+                player2: JSON.parse(sessionStorage.getItem("player2")),
+                fallenWickets: JSON.parse(sessionStorage.getItem("fallenWickets") || "[]")
+            };
+
+            actions.push({
+                runs,
+                color,
+                type,
+                state: stateSnapshot
+            });
+
+            // We pass runs/color just for the visual log bubble
+            logActionDisplay(runs, color, type);
+        }
+
+        function logActionDisplay(runs, color, type = "") {
+            // Only update the UI bubble
+            const log = document.createElement("div");
+            log.className = `ball-log ${color}`;
+            log.innerHTML = `<div>${runs}</div>${type ? `<div>${type}</div>` : ""}`;
+            logContainer.appendChild(log);
+            logContainer.scrollLeft = logContainer.scrollWidth;
+            // No saveToSessionStorage here, we do it in updateDisplay mainly
+        }
+
+        function overCompleted() {
+            if (overs == totalOvers && isNaN(target)) {
+                // First Innings Complete
+                givenTarget.textContent = `Target ${score + 1}`;
+                givenTarget.style.display = "";
+                // Show summary instead of just hiding
+                showMatchSummary("Innings Break - Target Set");
+            } else {
+                if (wickets >= 10 || overs == totalOvers) {
+                    // Match End (Lost or All Out)
+                    let msg = wickets >= 10 ? "All Out!" : "Overs Completed";
+                    if (!isNaN(target) && target > 0 && score < target) {
+                        msg = "You Lost! Target Not Met.";
+                    }
+                    showMatchSummary(msg);
+                }
+            }
+        }
+
+        function showMatchSummary(title) {
+            popupSummary.style.display = "block";
+            overlay.style.display = "block";
+            document.querySelector("#popupSummary h3").textContent = title || "Match Summary";
+
+            const tbody = document.getElementById("summaryBody");
+            tbody.innerHTML = "";
+
+            const allPlayers = getAllPlayerStats();
+
+            allPlayers.forEach(p => {
+                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Hide game container elements to focus on summary
+            scoreContainer.style.display = "none";
+            startContainer.style.display = "none";
+            back.style.display = "none";
+        }
+
+        function getAllPlayerStats() {
+            const fallenWickets = JSON.parse(sessionStorage.getItem("fallenWickets") || "[]").map(p => ({ ...p, status: "Out" }));
+            const p1 = JSON.parse(sessionStorage.getItem("player1"));
+            const p2 = JSON.parse(sessionStorage.getItem("player2"));
+
+            // Mark current players as Not Out
+            p1.status = "Not Out";
+            p2.status = "Not Out";
+
+            return [...fallenWickets, p1, p2];
+        }
+
+        function downloadSummary() {
+            const allPlayers = getAllPlayerStats();
+            let content = "Match Summary\n";
+            content += "--------------------------------------------------\n";
+            content += "Player Name       | Runs | Balls | SR     | Status\n";
+            content += "--------------------------------------------------\n";
+
+            allPlayers.forEach(p => {
+                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+                const padName = p.name.padEnd(17, " ");
+                const padRuns = p.runs.toString().padEnd(4, " ");
+                const padBalls = p.balls.toString().padEnd(5, " ");
+                const padSR = sr.padEnd(6, " ");
+                content += `${padName} | ${padRuns} | ${padBalls} | ${padSR} | ${p.status}\n`;
+            });
+
+            content += "--------------------------------------------------\n";
+            content += `Total Score: ${score}/${wickets} (${overs}.${balls} Overs)\n`;
+
+            const blob = new Blob([content], { type: "text/plain" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "match_summary.txt";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function restart() {
+            scoreContainer.style.display = "none";
+            oversError.style.display = "none";
+            targetError.style.display = "none";
+            startContainer.style.display = "";
+            won.style.display = "none";
+            back.style.display = "none";
+            popupSummary.style.display = "none";
+            overlay.style.display = "none";
+
+            sessionStorage.clear();
+            resetState();
+        }
+
+        function undo() {
+            if (actions.length === 0) return;
+            const lastAction = actions.pop();
+            const prevState = lastAction.state;
+
+            if (prevState) {
+                // Restore State
+                score = prevState.score;
+                wickets = prevState.wickets;
+                balls = prevState.balls;
+                overs = prevState.overs;
+                currentStriker = prevState.currentStriker;
+
+                sessionStorage.setItem("player1", JSON.stringify(prevState.player1));
+                sessionStorage.setItem("player2", JSON.stringify(prevState.player2));
+                sessionStorage.setItem("fallenWickets", JSON.stringify(prevState.fallenWickets));
+                sessionStorage.setItem("currentStriker", currentStriker);
+            } else {
+                // Fallback for old actions if any
+                resetState(); // This was the old buggy way, hopefully we don't hit this much
+            }
+
+            updateDisplay();
+
+            // Rebuild Log UI
+            logContainer.innerHTML = "";
+            actions.forEach((action) =>
+                logActionDisplay(action.runs, action.color, action.type)
+            );
+        }
+
+        function handleOverlayClick() {
+            if (popupNewPlayer.style.display === "block") {
+                return;
+            }
+            hidePopup();
+        }
+
+        function hidePopup() {
+            popup.style.display = "none";
+            popupout.style.display = "none";
+            popupNewPlayer.style.display = "none";
+            // Do not hide popupSummary here blindly, as it should leverage overlay
+            // But if we want consistent overlay behavior, we could. 
+            // However, summary usually blocks until restart. 
+            // Let's safe-guard: if summary is open, don't just close it unless we restart.
+            if (popupSummary.style.display !== "block") {
+                overlay.style.display = "none";
+            }
+        }
+
+        function resetState() {
+            score = 0;
+            wickets = 0;
+            balls = 0;
+            overs = 0;
+        }
+
+        function saveToSessionStorage() {
+            sessionStorage.setItem("score", score);
+            sessionStorage.setItem("wickets", wickets);
+            sessionStorage.setItem("balls", balls);
+            sessionStorage.setItem("overs", overs);
+            sessionStorage.setItem("currentStriker", currentStriker);
+            sessionStorage.setItem("actions", JSON.stringify(actions));
+            sessionStorage.setItem("logHTML", logContainer.innerHTML);
+        }
+
+        function loadFromSessionStorage() {
+            score = parseInt(sessionStorage.getItem("score")) || 0;
+            wickets = parseInt(sessionStorage.getItem("wickets")) || 0;
+            balls = parseInt(sessionStorage.getItem("balls")) || 0;
+
+            overs = parseInt(sessionStorage.getItem("overs")) || 0;
+            currentStriker = sessionStorage.getItem("currentStriker") || "player1";
+            totalOvers = parseInt(
+                sessionStorage.getItem("totalOvers") || 0
+            );
+            actions = JSON.parse(sessionStorage.getItem("actions")) || [];
+            logContainer.innerHTML =
+                sessionStorage.getItem("logHTML") || "";
+            showInnings();
+            updateDisplay();
+        }
+
+        function selectedInnings(value) {
+            sessionStorage.setItem("innings", value);
+            oversError.style.display = "none";
+            targetError.style.display = "none";
+            if (value == 1) {
+                targetDocument.disabled = true;
+                targetDocument.value = "";
+            } else if (value == 2) {
+                targetDocument.disabled = false;
+            }
+        }
+
+        function play(name) {
+            const selectAudio = document.getElementById("selectAudio");
+            if (selectAudio.checked) {
+                const audio = document.getElementById(`audio${name}`);
+                audio.muted = false;
+                audio.play();
+            }
+        }
+
+        function loadAudio() {
+            const selectAudio = document.getElementById("selectAudio");
+            if (selectAudio.checked) {
+                audioList.forEach((filename) => {
+                    const audioTag = document.createElement("audio");
+                    audioTag.id = `audio${filename}`;
+                    audioTag.src = `audio/${filename}.mp3`;
+                    audioTag.muted = true;
+                    audioTag.preload = "auto";
+                    audios.appendChild(audioTag);
+                });
+            }
+        }
+
+        loadAudio();
+
+        if (totalOvers == 0) {
+            scoreContainer.style.display = "none";
+            oversError.style.display = "none";
+            targetError.style.display = "none";
+            won.style.display = "none";
+            back.style.display = "none";
+            sessionStorage.setItem("innings", 1);
+        } else {
+            scoreContainer.style.display = "";
+            startContainer.style.display = "none";
+            won.style.display = "none";
+
+            document.getElementById("boardTotalOvers").textContent =
+                totalOvers;
+            window.onload = loadFromSessionStorage;
+        }
+    </script>
+</body>
+
+</html>
