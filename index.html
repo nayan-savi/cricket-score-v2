@@ -499,6 +499,116 @@
         .active-player .bat-icon {
             display: inline-block;
         }
+
+        .celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .celebration-text {
+            font-size: 15rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transform: scale(0);
+        }
+
+        .celebration-4 {
+            color: #e67e22;
+            /* Orange */
+            background: linear-gradient(to bottom, #f39c12, #d35400);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 5px 15px rgba(230, 126, 34, 0.4);
+        }
+
+        .celebration-6 {
+            color: #2ecc71;
+            /* Green */
+            background: linear-gradient(to bottom, #2ecc71, #27ae60);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0px 5px 15px rgba(46, 204, 113, 0.4);
+        }
+
+        .celebration-active {
+            opacity: 1;
+            animation: fadeInOut 2s forwards;
+        }
+
+        .celebration-active .celebration-text {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.2) rotate(5deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 1;
+            transform: translate(0, 0);
+            z-index: 99;
+        }
+
+        @keyframes explode {
+            0% {
+                transform: translate(0, 0) scale(1) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -657,6 +767,10 @@
         <h3 id="popupTitle"></h3>
         <div id="popupButtons"></div>
         <button class="cancel-btn" onclick="hidePopup()">Cancel</button>
+    </div>
+
+    <div class="celebration-overlay" id="celebrationOverlay">
+        <div class="celebration-text" id="celebrationText"></div>
     </div>
 
     <div class="popup" id="popupout">
@@ -902,6 +1016,10 @@
 
             if (runs % 2 !== 0) {
                 rotateStrike();
+            }
+
+            if (runs === 4 || runs === 6) {
+                showCelebration(runs);
             }
         }
 
@@ -1356,6 +1474,72 @@
             document.getElementById("boardTotalOvers").textContent =
                 totalOvers;
             window.onload = loadFromSessionStorage;
+        }
+
+        function showCelebration(runs) {
+            const overlay = document.getElementById("celebrationOverlay");
+            const text = document.getElementById("celebrationText");
+
+            overlay.classList.remove("celebration-active");
+            void overlay.offsetWidth; // Trigger reflow to restart animation if needed
+
+            if (runs === 4) {
+                text.textContent = "4";
+                text.className = "celebration-text celebration-4";
+            } else if (runs === 6) {
+                text.textContent = "6";
+                text.className = "celebration-text celebration-6";
+            }
+
+            overlay.classList.add("celebration-active");
+
+            // Trigger blast animation
+            createParticles(runs);
+
+            // Remove class after animation completes (2s)
+            setTimeout(() => {
+                overlay.classList.remove("celebration-active");
+            }, 2000);
+        }
+
+        function createParticles(runs) {
+            const overlay = document.getElementById("celebrationOverlay");
+            const particleCount = 50;
+            const colors4 = ['#e67e22', '#f1c40f', '#d35400', '#e74c3c'];
+            const colors6 = ['#2ecc71', '#27ae60', '#f1c40f', '#1abc9c'];
+            const colors = runs === 4 ? colors4 : colors6;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement("div");
+                particle.classList.add("particle");
+
+                // Randomize position and movement
+                const angle = Math.random() * Math.PI * 2;
+                const velocity = Math.random() * 200 + 100; // Distance to travel
+                const tx = Math.cos(angle) * velocity + 'px';
+                const ty = Math.sin(angle) * velocity + 'px';
+
+                particle.style.setProperty('--tx', tx);
+                particle.style.setProperty('--ty', ty);
+
+                // Randomize color
+                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+                // Randomize size slightly
+                const size = Math.random() * 8 + 4 + 'px';
+                particle.style.width = size;
+                particle.style.height = size;
+
+                // Animate
+                particle.style.animation = `explode 1s ease-out forwards`;
+
+                overlay.appendChild(particle);
+
+                // Clean up
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
+            }
         }
     </script>
 </body>
