@@ -609,6 +609,59 @@
                 opacity: 0;
             }
         }
+
+        /* Coin Styles */
+        .coin-container {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            position: relative;
+            perspective: 800px;
+        }
+
+        .coin {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+            transition: transform 3s ease-out;
+        }
+
+        .side {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        .heads {
+            background-color: #f1c40f;
+            border: 5px solid #d4ac0d;
+        }
+
+        .tails {
+            background-color: #95a5a6;
+            border: 5px solid #7f8c8d;
+            transform: rotateX(180deg);
+        }
+
+        .flip-heads {
+            transform: rotateX(1800deg);
+            /* 5 spins (360 * 5) + 0 */
+        }
+
+        .flip-tails {
+            transform: rotateX(1980deg);
+            /* 5 spins (360 * 5) + 180 */
+        }
     </style>
 </head>
 
@@ -626,6 +679,7 @@
         <input type="checkbox" id="selectAudio" style="width: 18px" onclick="loadAudio()" />
         Audio
     </div>
+    <audio id="coinFlipAudio" src="audio/coin-flip.mp3"></audio>
     <div id="audios"></div>
     <div class="container">
         <div id="start-container">
@@ -675,6 +729,7 @@
             </div>
 
             <button class="btn-primary" onclick="startScoring()">Start Match</button>
+            <button class="btn-primary" onclick="showTossPopup()">Toss</button>
 
             <div class="note" style="margin-top: 15px; text-align: center; font-size: 0.85rem; color: #7f8c8d;">
                 Note: Scores are stored locally until the browser is closed.
@@ -813,6 +868,25 @@
         </div>
     </div>
 
+    <div class="popup" id="popupToss">
+        <h3>Toss Coin</h3>
+        <div class="coin-container">
+            <div class="coin" id="coin">
+                <div class="side heads">H</div>
+                <div class="side tails">T</div>
+            </div>
+        </div>
+        <div id="tossResult" style="font-size: 1.5em; margin: 10px; font-weight: bold; min-height: 30px;"></div>
+        <div style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
+            <button id="tossCoinBtn"
+                style="background: #f39c12; color: #fff; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;"
+                onclick="tossCoin()">
+                Toss
+            </button>
+            <button class="cancel-btn" onclick="hideTossPopup()">Close</button>
+        </div>
+    </div>
+
     <!-- Match Summary Popup -->
     <div class="popup" id="popupSummary" style="width: 90%; max-height: 80vh; overflow-y: auto;">
         <h3>Match Summary</h3>
@@ -912,6 +986,65 @@
                 totalOvers;
             loadFromSessionStorage();
         }
+
+        /* Toss Logic */
+        const popupToss = document.getElementById("popupToss");
+        const tossResult = document.getElementById("tossResult");
+        const tossCoinBtn = document.getElementById("tossCoinBtn");
+        const coin = document.getElementById("coin");
+
+        function showTossPopup() {
+            popupToss.style.display = "block";
+            overlay.style.display = "block";
+            tossResult.textContent = "";
+            tossCoinBtn.disabled = false;
+            tossCoinBtn.style.display = 'inline-block';
+            tossCoinBtn.textContent = "Toss";
+
+            // Reset coin
+            coin.style.animation = "none";
+            coin.className = "coin"; // Reset classes
+        }
+
+        function hideTossPopup() {
+            popupToss.style.display = "none";
+            overlay.style.display = "none";
+        }
+
+        function tossCoin() {
+            playCoinFlip()
+            tossCoinBtn.disabled = true;
+            tossCoinBtn.textContent = "Tossing...";
+            tossResult.textContent = "";
+
+            // Random result
+            // Random result
+            const result = ["HEADS", "TAILS"][Math.floor(Math.random() * 2)];
+
+            // Reset animation
+            coin.className = "coin";
+
+            // Force reflow
+            void coin.offsetWidth;
+
+            // Apply animation class
+            if (result === "HEADS") {
+                coin.classList.add("flip-heads");
+            } else {
+                coin.classList.add("flip-tails");
+            }
+
+            // Wait for animation to finish (3s)
+            setTimeout(() => {
+                finalizeToss(result);
+            }, 3000);
+        }
+
+        function finalizeToss(result) {
+            tossResult.textContent = result;
+            tossCoinBtn.style.display = "none";
+        }
+
 
         function validate() {
             const innings = sessionStorage.getItem("innings");
@@ -1443,6 +1576,18 @@
             }
         }
 
+        function playCoinFlip() {
+            const coinFlipAudio = document.getElementById("coinFlipAudio");
+            coinFlipAudio.muted = false;
+            coinFlipAudio.play();
+        }
+
+        function loadCoinFlipAudio() {
+            const coinFlipAudio = document.getElementById("coinFlipAudio");
+            coinFlipAudio.muted = true;
+            coinFlipAudio.preload = "auto";
+        }
+
         function loadAudio() {
             const selectAudio = document.getElementById("selectAudio");
             if (selectAudio.checked) {
@@ -1458,6 +1603,7 @@
         }
 
         loadAudio();
+        loadCoinFlipAudio();
 
         if (totalOvers == 0) {
             scoreContainer.style.display = "none";
