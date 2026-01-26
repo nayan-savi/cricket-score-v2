@@ -371,6 +371,22 @@
             font-size: 0.95rem;
         }
 
+        .score-board-btn {
+            background: linear-gradient(135deg, #9891db, #483ed6);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-size: 0.95rem;
+        }
+
         .back-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
@@ -739,6 +755,7 @@
             <button onclick="restart()" class="back-btn">
                 <span>←</span> Back
             </button>
+            <button onclick="showScoreBoard()" class="score-board-btn">Score Board</button>
             <div id="innings" class="innings-badge"></div>
         </div>
         <div id="won">
@@ -911,6 +928,29 @@
         </div>
     </div>
 
+    <div class="popup" id="scoreSummary" style="width: 90%; max-height: 80vh; overflow-y: auto;">
+        <h3>Score Summary</h3>
+        <h2 id="summaryTarget" style="color: #e74c3c; margin: 10px 0; display: none;"></h2>
+        <table id="scoreSummaryTable"
+            style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 1rem;">
+            <thead>
+                <tr style="background: #f1f1f1;">
+                    <th style="padding: 8px; border: 1px solid #ddd;">Player</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Runs</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Balls</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">SR</th>
+                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
+                </tr>
+            </thead>
+            <tbody id="scoreSummaryBody">
+                <!-- Rows will be added here -->
+            </tbody>
+        </table>
+        <div style="display: flex; justify-content: center; gap: 10px;">
+            <button onclick="hideScoreBoard()" class="cancel-btn">Close</button>
+        </div>
+    </div>
+
     <script>
         const audioList = ["0", "1", "2", "3", "4", "6", "out", "over"];
         let score = 0;
@@ -921,6 +961,7 @@
         let currentStriker = sessionStorage.getItem("currentStriker") || "player1";
         const popupNewPlayer = document.getElementById("popupNewPlayer");
         const popupSummary = document.getElementById("popupSummary");
+        const scoreSummary = document.getElementById("scoreSummary");
         const newPlayerNameInput = document.getElementById("newPlayerName");
 
         let totalOvers = parseInt(
@@ -1444,6 +1485,35 @@
             scoreContainer.style.display = "none";
             startContainer.style.display = "none";
             back.style.display = "none";
+        }
+
+        function showScoreBoard() {
+            scoreSummary.style.display = "block";
+            overlay.style.display = "block";
+            document.querySelector("#scoreSummary h3").textContent = "Score Board";
+
+            const tbody = document.getElementById("scoreSummaryBody");
+            tbody.innerHTML = "";
+            const allPlayers = getAllPlayerStats();
+
+            allPlayers.forEach(p => {
+                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function hideScoreBoard() {
+            scoreSummary.style.display = "none";
+            overlay.style.display = "none";
+            back.style.display = "flex";
         }
 
         function getAllPlayerStats() {
