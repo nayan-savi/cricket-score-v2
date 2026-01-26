@@ -6,8 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cricket Score</title>
     <style>
+        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap");
+
+        :root {
+            --primary: #4f46e5;
+            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
+            --secondary-gradient: linear-gradient(135deg, #ec4899, #f472b6);
+            --danger-gradient: linear-gradient(135deg, #ef4444, #dc2626);
+            --success-gradient: linear-gradient(135deg, #10b981, #059669);
+            --glass-bg: rgba(255, 255, 255, 0.7);
+            --glass-bg-strong: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.4);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+            --text-main: #1e293b;
+            --text-light: #64748b;
+        }
+
         body {
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-family: "Inter", sans-serif;
             color: #000;
             padding: 0;
             display: flex;
@@ -18,107 +34,246 @@
         }
 
         .container {
-            background-color: rgba(255, 255, 255, 0.8);
-            color: #2c3e50;
-            padding: 20px;
+            background: rgb(244 224 224 / 40%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            color: var(--text-main);
+            padding: 30px;
             width: 90%;
+            max-width: 550px;
             text-align: center;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         h1 {
-            font-size: 2em;
+            font-family: "Outfit", sans-serif;
+            font-size: 2.2em;
             margin-bottom: 20px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        h2 {
+            font-family: "Outfit", sans-serif;
         }
 
         .score-container {
             text-align: center;
             display: flex;
+            flex-direction: column;
             justify-content: center;
+            margin-bottom: 20px;
         }
 
         .score {
-            font-size: 2.5em;
-            margin: 10px 0;
-            font-weight: bold;
+            font-family: "Outfit", sans-serif;
+            font-size: 4.5em;
+            /* Massive score */
+            margin: 0;
+            font-weight: 800;
+            line-height: 1;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+        }
+
+        .score span {
+            /* Ensure gradient works on spans */
+            -webkit-text-fill-color: transparent;
         }
 
         .over {
-            margin: 35px 0;
+            font-size: 1.1em;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-top: 5px;
+            letter-spacing: 1px;
         }
 
-        .buttons button {
-            background: #3498db;
-            color: #fff;
-            padding: 10px 15px;
-            margin: 8px;
-            border: none;
-            border-radius: 6px;
-            font-size: 1em;
+        /* Buttons Grid Area - Redesigned */
+        .buttons table {
+            width: 100%;
+            border-spacing: 10px;
+            border-collapse: separate;
+        }
+
+        .buttons td {
+            background: linear-gradient(135deg, #ffffff, #f1f5f9);
+            color: var(--text-main);
+            padding: 15px 10px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: 700;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
         }
 
-        .buttons button:hover {
-            background: #2980b9;
-            transform: scale(1.05);
+        .buttons td:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .buttons td:active {
+            transform: scale(0.95);
+        }
+
+        /* Specific Button Styles */
+        .buttons td.shade {
+            /* Utility buttons */
+            background: rgba(255, 255, 255, 0.5);
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        .buttons td[onclick*="showOutPopup"] {
+            /* OUT button */
+            background: var(--danger-gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .buttons td[onclick*="showOutPopup"]:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Run Buttons (4 and 6) */
+        .buttons td[onclick*="addRuns(4)"] {
+            border-color: #6366f1;
+            color: #4f46e5;
+        }
+
+        .buttons td[onclick*="addRuns(6)"] {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Log Container */
         .log-container {
-            margin: 20px 0;
+            margin: 0px -30px;
+            /* Full width bleed */
+            padding: 10px 5px;
             display: flex;
+            gap: 10px;
             overflow-x: auto;
             white-space: nowrap;
-            padding: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            background: #f1f1f1;
-            max-width: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            border-top: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--glass-border);
+            scrollbar-width: none;
             height: 50px;
+            /* Firefox */
+        }
+
+        .log-container::-webkit-scrollbar {
+            display: none;
+            /* Chrome/Safari */
         }
 
         .log-container .ball-log {
-            background: #3498db;
-            color: #fff;
-            width: 50px;
-            height: 50px;
-            min-width: 50px;
-            min-height: 50px;
+            background: white;
+            color: var(--text-main);
+            width: 45px;
+            height: 45px;
+            min-width: 45px;
             border-radius: 50%;
             display: inline-flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-right: 5px;
             font-size: 0.9em;
-            font-weight: bold;
-            flex-shrink: 0;
-            position: relative;
-            text-align: center;
+            font-weight: 800;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 2px solid transparent;
+            transition: transform 0.2s;
         }
 
+        .log-container .ball-log:last-child {
+            animation: popIn 0.3s;
+        }
+
+        .log-container .ball-log.four {
+            border-color: #eab308;
+            color: #b45309;
+        }
+
+        .log-container .ball-log.six {
+            background: var(--success-gradient);
+            color: white;
+            border: none;
+        }
+
+        .log-container .ball-log.red {
+            background: var(--danger-gradient);
+            color: white;
+            border: none;
+        }
+
+        .log-container .ball-log.extra {
+            background: #94a3b8;
+            color: white;
+        }
+
+        /* Popups */
         .popup {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            color: #2c3e50;
+            transform: translate(-50%, -50%) scale(0.95);
+            background: var(--glass-bg-strong);
+            backdrop-filter: blur(25px);
             padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            z-index: 10;
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow), 0 20px 50px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
             text-align: center;
-            width: 75%;
+            width: 85%;
             max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            animation: popupEnter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
 
-        .popup h3,
-        .popup h4 {
+        @keyframes popupEnter {
+            to {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .popup h3 {
+            font-family: "Outfit", sans-serif;
+            color: var(--text-main);
             margin-top: 0;
-            color: #2c3e50;
+            font-size: 1.5rem;
         }
 
         .popup-content {
@@ -813,21 +968,25 @@
                         <td onclick="play(0);addRuns(0)">0</td>
                         <td onclick="play(1);addRuns(1)">1</td>
                         <td onclick="play(2);addRuns(2)">2</td>
-                        <td class="shade" onclick="undo()">UNDO</td>
+                        <td class="shade" onclick="undo()" style="background-color: #a19c9c; color: white;">UNDO</td>
                     </tr>
                     <tr>
                         <td onclick="play(3);addRuns(3)">3</td>
                         <td onclick="play(4);addRuns(4)">4</td>
                         <td onclick="play(6);addRuns(6)">6</td>
-                        <td class="shade" onclick="showOutPopup()" style="color: #e74c3c">
+                        <td class="shade" onclick="showOutPopup()" style="background-color: #a19c9c">
                             OUT
                         </td>
                     </tr>
                     <tr>
-                        <td class="shade" onclick="showPopup('WD')">WD</td>
-                        <td class="shade" onclick="showPopup('NB')">NB</td>
-                        <td class="shade" onclick="showPopup('BY')">BYE</td>
-                        <td class="shade" onclick="showPopup('LB')">LB</td>
+                        <td class="shade" onclick="showPopup('WD')" style="background-color: #a19c9c; color: white;">WD
+                        </td>
+                        <td class="shade" onclick="showPopup('NB')" style="background-color: #a19c9c; color: white;">NB
+                        </td>
+                        <td class="shade" onclick="showPopup('BY')" style="background-color: #a19c9c; color: white;">BYE
+                        </td>
+                        <td class="shade" onclick="showPopup('LB')" style="background-color: #a19c9c; color: white;">LB
+                        </td>
                     </tr>
                 </table>
             </div>
