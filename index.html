@@ -1281,11 +1281,30 @@
             popupTitle.textContent = `Select Runs for ${type}`;
             popupButtons.innerHTML = "";
 
+            if (type === 'NB') {
+                const div = document.createElement("div");
+                div.style.marginBottom = "15px";
+                div.innerHTML = `
+                    <label style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; cursor: pointer;">
+                        <input type="checkbox" id="nbToBatsman" style="width: 20px; height: 20px;">
+                        Runs to Batsman?
+                    </label>
+                `;
+                popupButtons.appendChild(div);
+            }
+
             for (let i = 0; i <= 6; i++) {
                 const btn = document.createElement("button");
                 btn.textContent = `${type} + ${i}`;
                 btn.onclick = () => {
-                    handleExtra(type, "extra", i);
+                    let isBatsmanRun = false;
+                    if (type === 'NB') {
+                        const checkbox = document.getElementById("nbToBatsman");
+                        if (checkbox && checkbox.checked) {
+                            isBatsmanRun = true;
+                        }
+                    }
+                    handleExtra(type, "extra", i, isBatsmanRun);
                     hidePopup();
                 };
                 popupButtons.appendChild(btn);
@@ -1307,11 +1326,24 @@
             }
         }
 
-        function handleExtra(type, color, runs) {
+        function handleExtra(type, color, runs, isBatsmanRun = false) {
             logAction(runs, color, type);
             score += 1 + runs; // 1 for the extra plus any additional runs
+
+            if (isBatsmanRun && runs > 0) {
+                const currentPlayerKey = currentStriker;
+                const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
+                playerData.runs += runs;
+                // Note: No Ball usually doesn't count as ball faced, so we don't increment balls.
+                // Confirm with user logic if needed, but for now we follow existing "no addBall" for NB.
+                sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
+            }
+
             if (type == "BY" || type == "LB") {
                 addBall();
+            }
+            if (runs % 2 !== 0) {
+                rotateStrike();
             }
             updateDisplay();
         }
