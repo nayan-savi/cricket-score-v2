@@ -1,1954 +1,2165 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cricket Score</title>
     <style>
-        @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap");
-
-        :root {
-            --primary: #4f46e5;
-            --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
-            --secondary-gradient: linear-gradient(135deg, #ec4899, #f472b6);
-            --danger-gradient: linear-gradient(135deg, #ef4444, #dc2626);
-            --success-gradient: linear-gradient(135deg, #10b981, #059669);
-            --glass-bg: rgba(255, 255, 255, 0.7);
-            --glass-bg-strong: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            --text-main: #1e293b;
-            --text-light: #64748b;
-        }
-
-        body {
-            font-family: "Inter", sans-serif;
-            color: #000;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 97vh;
-            background-image: url("background4.jpg");
-        }
-
-        .container {
-            background: rgb(244 224 224 / 40%);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            color: var(--text-main);
-            padding: 30px;
-            width: 90%;
-            max-width: 550px;
-            text-align: center;
-            border-radius: 24px;
-            border: 1px solid var(--glass-border);
-            box-shadow: var(--glass-shadow);
-            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        h1 {
-            font-family: "Outfit", sans-serif;
-            font-size: 2.2em;
-            margin-bottom: 20px;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        h2 {
-            font-family: "Outfit", sans-serif;
-        }
-
-        .score-container {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .score {
-            font-family: "Outfit", sans-serif;
-            font-size: 4.5em;
-            /* Massive score */
-            margin: 0;
-            font-weight: 800;
-            line-height: 1;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
-        }
-
-        .score span {
-            /* Ensure gradient works on spans */
-            -webkit-text-fill-color: transparent;
-        }
-
-        .over {
-            font-size: 1.1em;
-            color: var(--text-light);
-            font-weight: 600;
-            margin-top: 5px;
-            letter-spacing: 1px;
-        }
-
-        /* Buttons Grid Area - Redesigned */
-        .buttons table {
-            width: 100%;
-            border-spacing: 10px;
-            border-collapse: separate;
-        }
-
-        .buttons td {
-            background: linear-gradient(135deg, #ffffff, #f1f5f9);
-            color: var(--text-main);
-            padding: 15px 10px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 5px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .buttons td:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-        }
-
-        .buttons td:active {
-            transform: scale(0.95);
-        }
-
-        /* Specific Button Styles */
-        .buttons td.shade {
-            /* Utility buttons */
-            background: rgba(255, 255, 255, 0.5);
-            font-size: 1rem;
-            color: var(--text-light);
-        }
-
-        .buttons td[onclick*="showOutPopup"] {
-            /* OUT button */
-            background: var(--danger-gradient);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-        }
-
-        .buttons td[onclick*="showOutPopup"]:hover {
-            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
-        }
-
-        /* Run Buttons (4 and 6) */
-        .buttons td[onclick*="addRuns(4)"] {
-            border-color: #6366f1;
-            color: #4f46e5;
-        }
-
-        .buttons td[onclick*="addRuns(6)"] {
-            background: var(--success-gradient);
-            color: white;
-            border: none;
-            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-
-        /* Log Container */
-        .log-container {
-            margin: 0px -30px;
-            /* Full width bleed */
-            padding: 10px 5px;
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            white-space: nowrap;
-            background: rgba(255, 255, 255, 0.3);
-            border-top: 1px solid var(--glass-border);
-            border-bottom: 1px solid var(--glass-border);
-            scrollbar-width: none;
-            height: 50px;
-            /* Firefox */
-        }
-
-        .log-container::-webkit-scrollbar {
-            display: none;
-            /* Chrome/Safari */
-        }
-
-        .log-container .ball-log {
-            background: white;
-            color: var(--text-main);
-            width: 45px;
-            height: 45px;
-            min-width: 45px;
-            border-radius: 50%;
-            display: inline-flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.9em;
-            font-weight: 800;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-            border: 2px solid transparent;
-            transition: transform 0.2s;
-        }
-
-        .log-container .ball-log:last-child {
-            animation: popIn 0.3s;
-        }
-
-        .log-container .ball-log.four {
-            border-color: #eab308;
-            color: #b45309;
-        }
-
-        .log-container .ball-log.six {
-            background: var(--success-gradient);
-            color: white;
-            border: none;
-        }
-
-        .log-container .ball-log.red {
-            background: var(--danger-gradient);
-            color: white;
-            border: none;
-        }
-
-        .log-container .ball-log.extra {
-            background: #94a3b8;
-            color: white;
-        }
-
-        /* Popups */
-        .popup {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.95);
-            background: var(--glass-bg-strong);
-            backdrop-filter: blur(25px);
-            padding: 30px;
-            border-radius: 24px;
-            box-shadow: var(--glass-shadow), 0 20px 50px rgba(0, 0, 0, 0.2);
-            z-index: 1000;
-            text-align: center;
-            width: 85%;
-            max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
-            animation: popupEnter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes popupEnter {
-            to {
-                transform: translate(-50%, -50%) scale(1);
-                opacity: 1;
-            }
-        }
-
-        .popup h3 {
-            font-family: "Outfit", sans-serif;
-            color: var(--text-main);
-            margin-top: 0;
-            font-size: 1.5rem;
-        }
-
-        .popup-content {
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .popup button {
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: #fff;
-            margin: 8px 5px;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
-        }
-
-        .popup button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
-        }
-
-        .popup .cancel-btn {
-            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
-            box-shadow: 0 4px 6px rgba(127, 140, 141, 0.3);
-        }
-
-        .popup .cancel-btn:hover {
-            background: linear-gradient(135deg, #7f8c8d, #6c7a7d);
-            box-shadow: 0 6px 12px rgba(127, 140, 141, 0.4);
-        }
-
-        .popup .danger-btn {
-            background: linear-gradient(135deg, #e74c3c, #c0392b);
-            box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
-        }
-
-        .popup .danger-btn:hover {
-            background: linear-gradient(135deg, #c0392b, #a93226);
-            box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
-        }
-
-        .player-selection-group {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 10px;
-        }
-
-        .player-option {
-            flex: 1;
-        }
-
-        .player-option input[type="radio"] {
-            display: none;
-        }
-
-        .player-option label {
-            display: block;
-            padding: 12px;
-            background: rgba(236, 240, 241, 0.5);
-            border: 2px solid #000;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .player-option input[type="radio"]:checked+label {
-            background: rgba(231, 76, 60, 0.1);
-            border-color: #e74c3c;
-            color: #e74c3c;
-            font-weight: 700;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 5;
-        }
-
-        table {
-            width: 100%;
-            font-size: 1.8rem;
-        }
-
-        td {
-            padding: 10px;
-            border: 1px solid grey;
-        }
-
-        .red {
-            background: #e74c3c !important;
-        }
-
-        .extra {
-            background: gray !important;
-        }
-
-        .run {
-            background: #fff !important;
-            color: #000 !important;
-        }
-
-        .four {
-            background: orange !important;
-        }
-
-        .six {
-            background: green !important;
-        }
-
-        .shade {
-            background: lightgray;
-        }
-
-        input {
-            height: 30px;
-        }
-
-        #start-container {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(15px);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-            max-width: 500px;
-            margin: 0 auto;
-            text-align: left;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-row {
-            display: flex;
-            gap: 15px;
-        }
-
-        .form-row .form-group {
-            flex: 1;
-        }
-
-        .filed {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 0.95rem;
-        }
-
-        input[type="text"],
-        input[type="number"] {
-            width: 100%;
-            height: 45px;
-            padding: 10px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-            background: rgba(255, 255, 255, 0.9);
-        }
-
-        input[type="text"]:focus,
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 20px;
-            background: rgba(236, 240, 241, 0.5);
-            padding: 10px;
-            border-radius: 10px;
-            justify-content: center;
-        }
-
-        .lable-radio {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .radio {
-            width: 18px;
-            height: 18px;
-            margin-right: 8px;
-            accent-color: #3498db;
-        }
-
-        .btn-primary {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
-            background: linear-gradient(135deg, #2980b9, #1c5980);
-        }
-
-        .error {
-            color: red;
-        }
-
-        .back-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            padding: 0 10px;
-        }
-
-        .back-btn {
-            background: linear-gradient(135deg, #7f8c8d, #2c3e50);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 0.95rem;
-        }
-
-        .score-board-btn {
-            background: linear-gradient(135deg, #9891db, #483ed6);
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            font-size: 0.95rem;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            background: linear-gradient(135deg, #95a5a6, #34495e);
-        }
-
-        .innings-badge {
-            background: linear-gradient(135deg, #27ae60, #2ecc71);
-            color: white;
-            padding: 6px 16px;
-            border-radius: 20px;
-            font-weight: 700;
-            font-size: 1rem;
-            box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
-            letter-spacing: 0.5px;
-        }
-
-        .radio {
-            width: 25px;
-        }
-
-        .lable-radio {
-            display: flex;
-            align-items: center;
-        }
-
-        .filed {
-            font-weight: bold;
-        }
-
-        .out-btns>div>button {
-            width: 50px;
-        }
-
-        .players-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin: 20px 0;
-        }
-
-        .player-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            min-width: 125px;
-            transition: all 0.3s ease;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .playerDisplay {
-            display: flex;
-            align-items: center;
-        }
-
-        .player-name {
-            font-size: 1.2rem;
-            color: #2c3e50;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .player-stats {
-            display: flex;
-            align-items: baseline;
-            gap: 5px;
-        }
-
-        .player-runs {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #2980b9;
-        }
-
-        .player-balls {
-            font-size: 1rem;
-            color: #7f8c8d;
-            font-weight: 500;
-        }
-
-        .active-player {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 248, 255, 0.9));
-            border: 2px solid #3498db;
-            box-shadow: 0 8px 15px rgba(52, 152, 219, 0.2);
-            transform: translateY(-5px);
-        }
-
-        .active-player .player-name {
-            color: #2980b9;
-        }
-
-        .swap-btn {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #3498db, #2980b9);
-            color: white;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-        }
-
-        .swap-btn:hover {
-            transform: rotate(180deg) scale(1.1);
-            background: linear-gradient(135deg, #2980b9, #1c5980);
-        }
-
-        .bat-icon {
-            display: none;
-            font-size: 1.2rem;
-            margin-left: 5px;
-        }
-
-        .active-player .bat-icon {
-            display: inline-block;
-        }
-
-        .celebration-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .celebration-text {
-            font-size: 15rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            transform: scale(0);
-        }
-
-        .celebration-4 {
-            color: #e67e22;
-            /* Orange */
-            background: linear-gradient(to bottom, #f39c12, #d35400);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0px 5px 15px rgba(230, 126, 34, 0.4);
-        }
-
-        .celebration-6 {
-            color: #2ecc71;
-            /* Green */
-            background: linear-gradient(to bottom, #2ecc71, #27ae60);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0px 5px 15px rgba(46, 204, 113, 0.4);
-        }
-
-        .celebration-active {
-            opacity: 1;
-            animation: fadeInOut 2s forwards;
-        }
-
-        .celebration-active .celebration-text {
-            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes popIn {
-            0% {
-                transform: scale(0) rotate(-10deg);
-                opacity: 0;
-            }
-
-            50% {
-                transform: scale(1.2) rotate(5deg);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1) rotate(0deg);
-                opacity: 1;
-            }
-        }
-
-        @keyframes fadeInOut {
-            0% {
-                opacity: 0;
-            }
-
-            10% {
-                opacity: 1;
-            }
-
-            90% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
-        }
-
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            pointer-events: none;
-            opacity: 1;
-            transform: translate(0, 0);
-            z-index: 99;
-        }
-
-        @keyframes explode {
-            0% {
-                transform: translate(0, 0) scale(1) rotate(0deg);
-                opacity: 1;
-            }
-
-            100% {
-                transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg);
-                opacity: 0;
-            }
-        }
-
-        /* Coin Styles */
-        .coin-container {
-            width: 150px;
-            height: 150px;
-            margin: 20px auto;
-            position: relative;
-            perspective: 800px;
-        }
-
-        .coin {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-            transition: transform 3s ease-out;
-        }
-
-        .side {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            backface-visibility: hidden;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 3rem;
-            font-weight: bold;
-            color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        }
-
-        .heads {
-            background-color: #f1c40f;
-            border: 5px solid #d4ac0d;
-        }
-
-        .tails {
-            background-color: #95a5a6;
-            border: 5px solid #7f8c8d;
-            transform: rotateX(180deg);
-        }
-
-        .flip-heads {
-            transform: rotateX(1800deg);
-            /* 5 spins (360 * 5) + 0 */
-        }
-
-        .flip-tails {
-            transform: rotateX(1980deg);
-            /* 5 spins (360 * 5) + 180 */
-        }
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@500;700;800&display=swap");
+
+      :root {
+        --primary: #4f46e5;
+        --primary-gradient: linear-gradient(135deg, #6366f1, #3b82f6);
+        --secondary-gradient: linear-gradient(135deg, #ec4899, #f472b6);
+        --danger-gradient: linear-gradient(135deg, #ef4444, #dc2626);
+        --success-gradient: linear-gradient(135deg, #10b981, #059669);
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-bg-strong: rgba(255, 255, 255, 0.85);
+        --glass-border: rgba(255, 255, 255, 0.4);
+        --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+        --text-main: #1e293b;
+        --text-light: #64748b;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        color: #000;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 97vh;
+        background-image: url("background4.jpg");
+      }
+
+      .container {
+        background: rgb(244 224 224 / 40%);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        color: var(--text-main);
+        padding: 30px;
+        width: 90%;
+        max-width: 550px;
+        text-align: center;
+        border-radius: 24px;
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--glass-shadow);
+        animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        font-family: "Outfit", sans-serif;
+        font-size: 2.2em;
+        margin-bottom: 20px;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      h2 {
+        font-family: "Outfit", sans-serif;
+      }
+
+      .score-container {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .score {
+        font-family: "Outfit", sans-serif;
+        font-size: 4.5em;
+        /* Massive score */
+        margin: 0;
+        font-weight: 800;
+        line-height: 1;
+        background: var(--primary-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 4px 20px rgba(79, 70, 229, 0.2);
+      }
+
+      .score span {
+        /* Ensure gradient works on spans */
+        -webkit-text-fill-color: transparent;
+      }
+
+      .over {
+        font-size: 1.1em;
+        color: var(--text-light);
+        font-weight: 600;
+        margin-top: 5px;
+        letter-spacing: 1px;
+      }
+
+      /* Buttons Grid Area - Redesigned */
+      .buttons table {
+        width: 100%;
+        border-spacing: 10px;
+        border-collapse: separate;
+      }
+
+      .buttons td {
+        background: linear-gradient(135deg, #ffffff, #f1f5f9);
+        color: var(--text-main);
+        padding: 15px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 5px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .buttons td:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+      }
+
+      .buttons td:active {
+        transform: scale(0.95);
+      }
+
+      /* Specific Button Styles */
+      .buttons td.shade {
+        /* Utility buttons */
+        background: rgba(255, 255, 255, 0.5);
+        font-size: 1rem;
+        color: var(--text-light);
+      }
+
+      .buttons td[onclick*="showOutPopup"] {
+        /* OUT button */
+        background: var(--danger-gradient);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+      }
+
+      .buttons td[onclick*="showOutPopup"]:hover {
+        box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+      }
+
+      /* Run Buttons (4 and 6) */
+      .buttons td[onclick*="addRuns(4)"] {
+        border-color: #6366f1;
+        color: #4f46e5;
+      }
+
+      .buttons td[onclick*="addRuns(6)"] {
+        background: var(--success-gradient);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+      }
+
+      /* Log Container */
+      .log-container {
+        margin: 0px -30px;
+        /* Full width bleed */
+        padding: 10px 5px;
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        white-space: nowrap;
+        background: rgba(255, 255, 255, 0.3);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+        scrollbar-width: none;
+        height: 50px;
+        /* Firefox */
+      }
+
+      .log-container::-webkit-scrollbar {
+        display: none;
+        /* Chrome/Safari */
+      }
+
+      .log-container .ball-log {
+        background: white;
+        color: var(--text-main);
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        border-radius: 50%;
+        display: inline-flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.9em;
+        font-weight: 800;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 2px solid transparent;
+        transition: transform 0.2s;
+      }
+
+      .log-container .ball-log:last-child {
+        animation: popIn 0.3s;
+      }
+
+      .log-container .ball-log.four {
+        border-color: #eab308;
+        color: #b45309;
+      }
+
+      .log-container .ball-log.six {
+        background: var(--success-gradient);
+        color: white;
+        border: none;
+      }
+
+      .log-container .ball-log.red {
+        background: var(--danger-gradient);
+        color: white;
+        border: none;
+      }
+
+      .log-container .ball-log.extra {
+        background: #94a3b8;
+        color: white;
+      }
+
+      /* Popups */
+      .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.95);
+        background: var(--glass-bg-strong);
+        backdrop-filter: blur(25px);
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: var(--glass-shadow), 0 20px 50px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        text-align: center;
+        width: 85%;
+        max-width: 400px;
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        animation: popupEnter 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)
+          forwards;
+      }
+
+      @keyframes popupEnter {
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .popup h3 {
+        font-family: "Outfit", sans-serif;
+        color: var(--text-main);
+        margin-top: 0;
+        font-size: 1.5rem;
+      }
+
+      .popup-content {
+        margin: 20px 0;
+        text-align: left;
+      }
+
+      .popup button {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: #fff;
+        margin: 8px 5px;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+      }
+
+      .popup button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+      }
+
+      .popup .cancel-btn {
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+        box-shadow: 0 4px 6px rgba(127, 140, 141, 0.3);
+      }
+
+      .popup .cancel-btn:hover {
+        background: linear-gradient(135deg, #7f8c8d, #6c7a7d);
+        box-shadow: 0 6px 12px rgba(127, 140, 141, 0.4);
+      }
+
+      .popup .danger-btn {
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        box-shadow: 0 4px 6px rgba(231, 76, 60, 0.3);
+      }
+
+      .popup .danger-btn:hover {
+        background: linear-gradient(135deg, #c0392b, #a93226);
+        box-shadow: 0 6px 12px rgba(231, 76, 60, 0.4);
+      }
+
+      .player-selection-group {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 10px;
+      }
+
+      .player-option {
+        flex: 1;
+      }
+
+      .player-option input[type="radio"] {
+        display: none;
+      }
+
+      .player-option label {
+        display: block;
+        padding: 12px;
+        background: rgba(236, 240, 241, 0.5);
+        border: 2px solid #000;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+
+      .player-option input[type="radio"]:checked + label {
+        background: rgba(231, 76, 60, 0.1);
+        border-color: #e74c3c;
+        color: #e74c3c;
+        font-weight: 700;
+      }
+
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 5;
+      }
+
+      table {
+        width: 100%;
+        font-size: 1.8rem;
+      }
+
+      td {
+        padding: 10px;
+        border: 1px solid grey;
+      }
+
+      .red {
+        background: #e74c3c !important;
+      }
+
+      .extra {
+        background: gray !important;
+      }
+
+      .run {
+        background: #fff !important;
+        color: #000 !important;
+      }
+
+      .four {
+        background: orange !important;
+      }
+
+      .six {
+        background: green !important;
+      }
+
+      .shade {
+        background: lightgray;
+      }
+
+      input {
+        height: 30px;
+      }
+
+      #start-container {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(15px);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        max-width: 500px;
+        margin: 0 auto;
+        text-align: left;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-row {
+        display: flex;
+        gap: 15px;
+      }
+
+      .form-row .form-group {
+        flex: 1;
+      }
+
+      .filed {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #2c3e50;
+        font-size: 0.95rem;
+      }
+
+      input[type="text"],
+      input[type="number"] {
+        width: 100%;
+        height: 45px;
+        padding: 10px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      input[type="text"]:focus,
+      input[type="number"]:focus {
+        outline: none;
+        border-color: #3498db;
+        box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 20px;
+        background: rgba(236, 240, 241, 0.5);
+        padding: 10px;
+        border-radius: 10px;
+        justify-content: center;
+      }
+
+      .lable-radio {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 500;
+      }
+
+      .radio {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+        accent-color: #3498db;
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-top: 10px;
+        box-shadow: 0 4px 6px rgba(52, 152, 219, 0.3);
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(52, 152, 219, 0.4);
+        background: linear-gradient(135deg, #2980b9, #1c5980);
+      }
+
+      .error {
+        color: red;
+      }
+
+      .back-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+        padding: 0 10px;
+      }
+
+      .back-btn {
+        background: linear-gradient(135deg, #7f8c8d, #2c3e50);
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-size: 0.95rem;
+      }
+
+      .score-board-btn {
+        background: linear-gradient(135deg, #9891db, #483ed6);
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        font-size: 0.95rem;
+      }
+
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        background: linear-gradient(135deg, #95a5a6, #34495e);
+      }
+
+      .innings-badge {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: white;
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1rem;
+        box-shadow: 0 4px 6px rgba(39, 174, 96, 0.3);
+        letter-spacing: 0.5px;
+      }
+
+      .radio {
+        width: 25px;
+      }
+
+      .lable-radio {
+        display: flex;
+        align-items: center;
+      }
+
+      .filed {
+        font-weight: bold;
+      }
+
+      .out-btns > div > button {
+        width: 50px;
+      }
+
+      .players-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .player-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(10px);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        min-width: 125px;
+        transition: all 0.3s ease;
+        position: relative;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .playerDisplay {
+        display: flex;
+        align-items: center;
+      }
+
+      .player-name {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin-bottom: 5px;
+        font-weight: 600;
+      }
+
+      .player-stats {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+      }
+
+      .player-runs {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: #2980b9;
+      }
+
+      .player-balls {
+        font-size: 1rem;
+        color: #7f8c8d;
+        font-weight: 500;
+      }
+
+      .active-player {
+        background: linear-gradient(
+          135deg,
+          rgba(255, 255, 255, 0.9),
+          rgba(240, 248, 255, 0.9)
+        );
+        border: 2px solid #3498db;
+        box-shadow: 0 8px 15px rgba(52, 152, 219, 0.2);
+        transform: translateY(-5px);
+      }
+
+      .active-player .player-name {
+        color: #2980b9;
+      }
+
+      .swap-btn {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+      }
+
+      .swap-btn:hover {
+        transform: rotate(180deg) scale(1.1);
+        background: linear-gradient(135deg, #2980b9, #1c5980);
+      }
+
+      .bat-icon {
+        display: none;
+        font-size: 1.2rem;
+        margin-left: 5px;
+      }
+
+      .active-player .bat-icon {
+        display: inline-block;
+      }
+
+      .celebration-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 100;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+      }
+
+      .celebration-text {
+        font-size: 15rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        text-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        transform: scale(0);
+      }
+
+      .celebration-4 {
+        color: #e67e22;
+        /* Orange */
+        background: linear-gradient(to bottom, #f39c12, #d35400);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0px 5px 15px rgba(230, 126, 34, 0.4);
+      }
+
+      .celebration-6 {
+        color: #2ecc71;
+        /* Green */
+        background: linear-gradient(to bottom, #2ecc71, #27ae60);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0px 5px 15px rgba(46, 204, 113, 0.4);
+      }
+
+      .celebration-active {
+        opacity: 1;
+        animation: fadeInOut 2s forwards;
+      }
+
+      .celebration-active .celebration-text {
+        animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+      }
+
+      @keyframes popIn {
+        0% {
+          transform: scale(0) rotate(-10deg);
+          opacity: 0;
+        }
+
+        50% {
+          transform: scale(1.2) rotate(5deg);
+          opacity: 1;
+        }
+
+        100% {
+          transform: scale(1) rotate(0deg);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInOut {
+        0% {
+          opacity: 0;
+        }
+
+        10% {
+          opacity: 1;
+        }
+
+        90% {
+          opacity: 1;
+        }
+
+        100% {
+          opacity: 0;
+        }
+      }
+
+      .particle {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        pointer-events: none;
+        opacity: 1;
+        transform: translate(0, 0);
+        z-index: 99;
+      }
+
+      @keyframes explode {
+        0% {
+          transform: translate(0, 0) scale(1) rotate(0deg);
+          opacity: 1;
+        }
+
+        100% {
+          transform: translate(var(--tx), var(--ty)) scale(0) rotate(360deg);
+          opacity: 0;
+        }
+      }
+
+      /* Coin Styles */
+      .coin-container {
+        width: 150px;
+        height: 150px;
+        margin: 20px auto;
+        position: relative;
+        perspective: 800px;
+      }
+
+      .coin {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        transform-style: preserve-3d;
+        transition: transform 3s ease-out;
+      }
+
+      .side {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        backface-visibility: hidden;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 3rem;
+        font-weight: bold;
+        color: white;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      }
+
+      .heads {
+        background-color: #f1c40f;
+        border: 5px solid #d4ac0d;
+      }
+
+      .tails {
+        background-color: #95a5a6;
+        border: 5px solid #7f8c8d;
+        transform: rotateX(180deg);
+      }
+
+      .flip-heads {
+        transform: rotateX(1800deg);
+      }
+
+      .flip-tails {
+        transform: rotateX(1980deg);
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <div style="
-                position: absolute;
-                top: 0;
-                left: 0;
-                color: #000;
-                padding: 10px;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            ">
-        <input type="checkbox" id="selectAudio" style="width: 18px" onclick="loadAudio()" />
-        Audio
+  <body>
+    <div
+      style="
+        position: absolute;
+        top: 0;
+        left: 0;
+        color: #000;
+        padding: 10px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      "
+    >
+      <input
+        type="checkbox"
+        id="selectAudio"
+        style="width: 18px"
+        onclick="loadAudio()"
+      />
+      Audio
     </div>
     <audio id="coinFlipAudio" src="audio/coin-flip.mp3"></audio>
     <div id="audios"></div>
     <div class="container">
-        <div id="start-container">
-            <h2 style="text-align: center; margin-bottom: 25px; color: #2c3e50;">Match Setup</h2>
+      <div id="start-container">
+        <h2 style="text-align: center; margin-bottom: 25px; color: #2c3e50">
+          Match Setup
+        </h2>
 
-            <div class="form-group">
-                <label class="filed">Select Innings</label>
-                <div class="radio-group">
-                    <label class="lable-radio">
-                        <input type="radio" name="innings" id="1st" class="radio" onclick="selectedInnings(1)"
-                            checked />
-                        1st Innings
-                    </label>
-                    <label class="lable-radio">
-                        <input type="radio" name="innings" id="2nd" class="radio" onclick="selectedInnings(2)" />
-                        2nd Innings
-                    </label>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="filed">Striker Name</label>
-                <input id="player1Name" type="text" placeholder="Enter Striker Name" />
-            </div>
-
-            <div class="form-group">
-                <label class="filed">Non-Striker Name</label>
-                <input id="player2Name" type="text" placeholder="Enter Non-Striker Name" />
-            </div>
-
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="filed">Total Overs</label>
-                    <input id="totalOvers" type="number" name="overs" required placeholder="e.g. 20" />
-                    <div style="margin-top: 5px;">
-                        <span id="overs-error" class="error" style="font-size: 0.85rem;">Overs is required</span>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="filed">Target Runs</label>
-                    <input id="target" type="number" name="target" disabled placeholder="e.g. 150" />
-                    <div style="margin-top: 5px;">
-                        <span id="target-error" class="error" style="font-size: 0.85rem;">Target is required</span>
-                    </div>
-                </div>
-            </div>
-
-            <button class="btn-primary" onclick="startScoring()">Start Match</button>
-            <button class="btn-primary" onclick="showTossPopup()">Toss</button>
-
-            <div class="note" style="margin-top: 15px; text-align: center; font-size: 0.85rem; color: #7f8c8d;">
-                Note: Scores are stored locally until the browser is closed.
-            </div>
+        <div class="form-group">
+          <label class="filed">Select Innings</label>
+          <div class="radio-group">
+            <label class="lable-radio">
+              <input
+                type="radio"
+                name="innings"
+                id="1st"
+                class="radio"
+                onclick="selectedInnings(1)"
+                checked
+              />
+              1st Innings
+            </label>
+            <label class="lable-radio">
+              <input
+                type="radio"
+                name="innings"
+                id="2nd"
+                class="radio"
+                onclick="selectedInnings(2)"
+              />
+              2nd Innings
+            </label>
+          </div>
         </div>
-        <div id="back" class="back-header">
-            <button onclick="restart()" class="back-btn">
-                <span>←</span> Back
-            </button>
-            <button onclick="showScoreBoard()" class="score-board-btn">Score Board</button>
-            <div id="innings" class="innings-badge"></div>
+
+        <div class="form-group">
+          <label class="filed">Striker Name</label>
+          <input
+            id="player1Name"
+            type="text"
+            placeholder="Enter Striker Name"
+          />
         </div>
-        <div id="won">
-            <div class="won">You Won!!</div>
+
+        <div class="form-group">
+          <label class="filed">Non-Striker Name</label>
+          <input
+            id="player2Name"
+            type="text"
+            placeholder="Enter Non-Striker Name"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="filed">Total Overs</label>
+            <input
+              id="totalOvers"
+              type="number"
+              name="overs"
+              required
+              placeholder="e.g. 20"
+            />
+            <div style="margin-top: 5px">
+              <span id="overs-error" class="error" style="font-size: 0.85rem"
+                >Overs is required</span
+              >
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="filed">Target Runs</label>
+            <input
+              id="target"
+              type="number"
+              name="target"
+              disabled
+              placeholder="e.g. 150"
+            />
+            <div style="margin-top: 5px">
+              <span id="target-error" class="error" style="font-size: 0.85rem"
+                >Target is required</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="startScoring()">
+          Start Match
+        </button>
+        <button class="btn-primary" onclick="showTossPopup()">Toss</button>
+
+        <div
+          class="note"
+          style="
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: #7f8c8d;
+          "
+        >
+          Note: Scores are stored locally until the browser is closed.
+        </div>
+      </div>
+      <div id="back" class="back-header">
+        <button onclick="restart()" class="back-btn">
+          <span>←</span> Back
+        </button>
+        <button onclick="showScoreBoard()" class="score-board-btn">
+          Score Board
+        </button>
+        <div id="innings" class="innings-badge"></div>
+      </div>
+      <div id="won">
+        <div class="won">You Won!!</div>
+      </div>
+      <div>
+        <div class="givenTarget" id="givenTarget"></div>
+      </div>
+      <div id="score-container">
+        <h1>🏏 Cricket Score</h1>
+        <div class="score-container">
+          <div class="score">
+            <span id="score">0</span>/<span id="wickets">0</span>
+          </div>
+          <div class="over">
+            (<span id="overs">0</span>.<span id="balls">0</span>/<span
+              id="boardTotalOvers"
+              >0</span
+            >)
+          </div>
         </div>
         <div>
-            <div class="givenTarget" id="givenTarget"></div>
+          <div>
+            <div class="players-container">
+              <div id="player1Container" class="player-card">
+                <div class="player-name">
+                  <span id="player1"></span> <span class="bat-icon">🏏</span>
+                </div>
+                <div class="player-stats">
+                  <span id="player1Runs" class="player-runs">0</span>
+                  <span class="player-balls"
+                    >(<span id="player1Balls">0</span>)</span
+                  >
+                </div>
+              </div>
+
+              <div>
+                <button
+                  onclick="rotateStrike()"
+                  class="swap-btn"
+                  title="Swap Strike"
+                >
+                  ⇄
+                </button>
+              </div>
+
+              <div id="player2Container" class="player-card">
+                <div class="player-name">
+                  <span id="player2"></span> <span class="bat-icon">🏏</span>
+                </div>
+                <div class="player-stats">
+                  <span id="player2Runs" class="player-runs">0</span>
+                  <span class="player-balls"
+                    >(<span id="player2Balls">0</span>)</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div id="score-container">
-            <h1>🏏 Cricket Score</h1>
-            <div class="score-container">
-                <div class="score">
-                    <span id="score">0</span>/<span id="wickets">0</span>
-                </div>
-                <div class="over">
-                    (<span id="overs">0</span>.<span id="balls">0</span>/<span id="boardTotalOvers">0</span>)
-                </div>
-            </div>
-            <div>
-                <div>
-                    <div class="players-container">
-                        <div id="player1Container" class="player-card">
-                            <div class="player-name">
-                                <span id="player1"></span> <span class="bat-icon">🏏</span>
-                            </div>
-                            <div class="player-stats">
-                                <span id="player1Runs" class="player-runs">0</span>
-                                <span class="player-balls">(<span id="player1Balls">0</span>)</span>
-                            </div>
-                        </div>
 
-                        <div>
-                            <button onclick="rotateStrike()" class="swap-btn" title="Swap Strike">⇄</button>
-                        </div>
+        <div style="color: red" id="requiredRuns"></div>
+        <div class="log-container" id="logContainer"></div>
 
-                        <div id="player2Container" class="player-card">
-                            <div class="player-name">
-                                <span id="player2"></span> <span class="bat-icon">🏏</span>
-                            </div>
-                            <div class="player-stats">
-                                <span id="player2Runs" class="player-runs">0</span>
-                                <span class="player-balls">(<span id="player2Balls">0</span>)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div style="color: red" id="requiredRuns"></div>
-            <div class="log-container" id="logContainer"></div>
-
-            <div class="buttons">
-                <table>
-                    <tr>
-                        <td onclick="play(0);addRuns(0)">0</td>
-                        <td onclick="play(1);addRuns(1)">1</td>
-                        <td onclick="play(2);addRuns(2)">2</td>
-                        <td class="shade" onclick="undo()" style="background-color: #a19c9c; color: white;">UNDO</td>
-                    </tr>
-                    <tr>
-                        <td onclick="play(3);addRuns(3)">3</td>
-                        <td onclick="play(4);addRuns(4)">4</td>
-                        <td onclick="play(6);addRuns(6)">6</td>
-                        <td class="shade" onclick="showOutPopup()" style="background-color: #a19c9c">
-                            OUT
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="shade" onclick="showPopup('WD')" style="background-color: #a19c9c; color: white;">WD
-                        </td>
-                        <td class="shade" onclick="showPopup('NB')" style="background-color: #a19c9c; color: white;">NB
-                        </td>
-                        <td class="shade" onclick="showPopup('BY')" style="background-color: #a19c9c; color: white;">BYE
-                        </td>
-                        <td class="shade" onclick="showPopup('LB')" style="background-color: #a19c9c; color: white;">LB
-                        </td>
-                    </tr>
-                </table>
-            </div>
+        <div class="buttons">
+          <table>
+            <tr>
+              <td onclick="play(0);addRuns(0)">0</td>
+              <td onclick="play(1);addRuns(1)">1</td>
+              <td onclick="play(2);addRuns(2)">2</td>
+              <td
+                class="shade"
+                onclick="undo()"
+                style="background-color: #a19c9c; color: white"
+              >
+                UNDO
+              </td>
+            </tr>
+            <tr>
+              <td onclick="play(3);addRuns(3)">3</td>
+              <td onclick="play(4);addRuns(4)">4</td>
+              <td onclick="play(6);addRuns(6)">6</td>
+              <td
+                class="shade"
+                onclick="showOutPopup()"
+                style="background-color: #a19c9c"
+              >
+                OUT
+              </td>
+            </tr>
+            <tr>
+              <td
+                class="shade"
+                onclick="showPopup('WD')"
+                style="background-color: #a19c9c; color: white"
+              >
+                WD
+              </td>
+              <td
+                class="shade"
+                onclick="showPopup('NB')"
+                style="background-color: #a19c9c; color: white"
+              >
+                NB
+              </td>
+              <td
+                class="shade"
+                onclick="showPopup('BY')"
+                style="background-color: #a19c9c; color: white"
+              >
+                BYE
+              </td>
+              <td
+                class="shade"
+                onclick="showPopup('LB')"
+                style="background-color: #a19c9c; color: white"
+              >
+                LB
+              </td>
+            </tr>
+          </table>
         </div>
+      </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="handleOverlayClick()"></div>
     <div class="popup" id="popup">
-        <h3 id="popupTitle"></h3>
-        <div id="popupButtons"></div>
-        <button class="cancel-btn" onclick="hidePopup()">Cancel</button>
+      <h3 id="popupTitle"></h3>
+      <div id="popupButtons"></div>
+      <button class="cancel-btn" onclick="hidePopup()">Cancel</button>
     </div>
 
     <div class="celebration-overlay" id="celebrationOverlay">
-        <div class="celebration-text" id="celebrationText"></div>
+      <div class="celebration-text" id="celebrationText"></div>
     </div>
 
     <div class="popup" id="popupout">
-        <h3 style="margin-bottom: 20px;">Dismissal</h3>
+      <h3 style="margin-bottom: 20px">Dismissal</h3>
 
-        <div class="popup-content">
-            <div class="form-group">
-                <label class="filed" style="text-align: center;">Runs Scored (if any)</label>
-                <input type="number" id="scored" placeholder="0" style="text-align: center;" />
-            </div>
-
-            <div class="form-group">
-                <label class="filed" style="text-align: center;">Who got out?</label>
-                <div class="player-selection-group">
-                    <div class="player-option">
-                        <input type="radio" name="player" id="radioPlayer1" />
-                        <label for="radioPlayer1" id="player1NameDisplay">Player 1</label>
-                    </div>
-                    <div class="player-option">
-                        <input type="radio" name="player" id="radioPlayer2" />
-                        <label for="radioPlayer2" id="player2NameDisplay">Player 2</label>
-                    </div>
-                </div>
-            </div>
+      <div class="popup-content">
+        <div class="form-group">
+          <label class="filed" style="text-align: center"
+            >Runs Scored (if any)</label
+          >
+          <input
+            type="number"
+            id="scored"
+            placeholder="0"
+            style="text-align: center"
+          />
         </div>
 
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <button class="danger-btn" onclick="play('out');addWicket();" style="flex: 1;">OUT</button>
-            <button class="cancel-btn" onclick="hidePopup()" style="flex: 1;">Cancel</button>
+        <div class="form-group">
+          <label class="filed" style="text-align: center">Who got out?</label>
+          <div class="player-selection-group">
+            <div class="player-option">
+              <input type="radio" name="player" id="radioPlayer1" />
+              <label for="radioPlayer1" id="player1NameDisplay">Player 1</label>
+            </div>
+            <div class="player-option">
+              <input type="radio" name="player" id="radioPlayer2" />
+              <label for="radioPlayer2" id="player2NameDisplay">Player 2</label>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div style="display: flex; justify-content: center; gap: 10px">
+        <button
+          class="danger-btn"
+          onclick="play('out');addWicket();"
+          style="flex: 1"
+        >
+          OUT
+        </button>
+        <button class="cancel-btn" onclick="hidePopup()" style="flex: 1">
+          Cancel
+        </button>
+      </div>
     </div>
 
     <div class="popup" id="popupNewPlayer">
-        <h3 id="newPlayerTitle">Enter New Player Name</h3>
-        <div>
-            <input type="text" id="newPlayerName" placeholder="New Player Name" style="width: 80%; padding: 5px;" />
-        </div>
-        <div style="margin-top: 15px;">
-            <button onclick="addNewPlayer()">Add Player</button>
-        </div>
+      <h3 id="newPlayerTitle">Enter New Player Name</h3>
+      <div>
+        <input
+          type="text"
+          id="newPlayerName"
+          placeholder="New Player Name"
+          style="width: 80%; padding: 5px"
+        />
+      </div>
+      <div style="margin-top: 15px">
+        <button onclick="addNewPlayer()">Add Player</button>
+      </div>
     </div>
 
     <div class="popup" id="popupToss">
-        <h3>Toss Coin</h3>
-        <div class="coin-container">
-            <div class="coin" id="coin">
-                <div class="side heads">H</div>
-                <div class="side tails">T</div>
-            </div>
+      <h3>Toss Coin</h3>
+      <div class="coin-container">
+        <div class="coin" id="coin">
+          <div class="side heads">H</div>
+          <div class="side tails">T</div>
         </div>
-        <div id="tossResult" style="font-size: 1.5em; margin: 10px; font-weight: bold; min-height: 30px;"></div>
-        <div style="margin-top: 10px; display: flex; justify-content: center; gap: 15px;">
-            <button id="tossCoinBtn"
-                style="background: #f39c12; color: #fff; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer;"
-                onclick="tossCoin()">
-                Toss
-            </button>
-            <button class="cancel-btn" onclick="hideTossPopup()">Close</button>
-        </div>
+      </div>
+      <div
+        id="tossResult"
+        style="
+          font-size: 1.5em;
+          margin: 10px;
+          font-weight: bold;
+          min-height: 30px;
+        "
+      ></div>
+      <div
+        style="
+          margin-top: 10px;
+          display: flex;
+          justify-content: center;
+          gap: 15px;
+        "
+      >
+        <button
+          id="tossCoinBtn"
+          style="
+            background: #f39c12;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+          "
+          onclick="tossCoin()"
+        >
+          Toss
+        </button>
+        <button class="cancel-btn" onclick="hideTossPopup()">Close</button>
+      </div>
     </div>
 
     <!-- Match Summary Popup -->
-    <div class="popup" id="popupSummary" style="width: 90%; max-height: 80vh; overflow-y: auto;">
-        <h3>Match Summary</h3>
-        <h2 id="summaryTarget" style="color: #e74c3c; margin: 10px 0; display: none;"></h2>
-        <table id="summaryTable" style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 1rem;">
-            <thead>
-                <tr style="background: #f1f1f1;">
-                    <th style="padding: 8px; border: 1px solid #ddd;">Player</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Runs</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Balls</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">SR</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
-                </tr>
-            </thead>
-            <tbody id="summaryBody">
-                <!-- Rows will be added here -->
-            </tbody>
-        </table>
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <button onclick="downloadSummary()" style="background: #27ae60;">Download Summary</button>
-            <button onclick="restart()" class="cancel-btn">Restart Game</button>
-        </div>
+    <div
+      class="popup"
+      id="popupSummary"
+      style="width: 90%; max-height: 80vh; overflow-y: auto"
+    >
+      <h3>Match Summary</h3>
+      <h2
+        id="summaryTarget"
+        style="color: #e74c3c; margin: 10px 0; display: none"
+      ></h2>
+      <table
+        id="summaryTable"
+        style="
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 1rem;
+        "
+      >
+        <thead>
+          <tr style="background: #f1f1f1">
+            <th style="padding: 8px; border: 1px solid #ddd">Player</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Runs</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Balls</th>
+            <th style="padding: 8px; border: 1px solid #ddd">SR</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Status</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody">
+          <!-- Rows will be added here -->
+        </tbody>
+      </table>
+      <div style="display: flex; justify-content: center; gap: 10px">
+        <button onclick="downloadSummary()" style="background: #27ae60">
+          Download Summary
+        </button>
+        <button onclick="restart()" class="cancel-btn">Restart Game</button>
+      </div>
     </div>
 
-    <div class="popup" id="scoreSummary" style="width: 90%; max-height: 80vh; overflow-y: auto;">
-        <h3>Score Summary</h3>
-        <h2 id="summaryTarget" style="color: #e74c3c; margin: 10px 0; display: none;"></h2>
-        <table id="scoreSummaryTable"
-            style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 1rem;">
-            <thead>
-                <tr style="background: #f1f1f1;">
-                    <th style="padding: 8px; border: 1px solid #ddd;">Player</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Runs</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Balls</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">SR</th>
-                    <th style="padding: 8px; border: 1px solid #ddd;">Status</th>
-                </tr>
-            </thead>
-            <tbody id="scoreSummaryBody">
-                <!-- Rows will be added here -->
-            </tbody>
-        </table>
-        <div style="display: flex; justify-content: center; gap: 10px;">
-            <button onclick="hideScoreBoard()" class="cancel-btn">Close</button>
-        </div>
+    <div
+      class="popup"
+      id="scoreSummary"
+      style="width: 90%; max-height: 80vh; overflow-y: auto"
+    >
+      <h3>Score Summary</h3>
+      <h2
+        id="summaryTarget"
+        style="color: #e74c3c; margin: 10px 0; display: none"
+      ></h2>
+      <table
+        id="scoreSummaryTable"
+        style="
+          width: 100%;
+          border-collapse: collapse;
+          margin-bottom: 20px;
+          font-size: 1rem;
+        "
+      >
+        <thead>
+          <tr style="background: #f1f1f1">
+            <th style="padding: 8px; border: 1px solid #ddd">Player</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Runs</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Balls</th>
+            <th style="padding: 8px; border: 1px solid #ddd">SR</th>
+            <th style="padding: 8px; border: 1px solid #ddd">Status</th>
+          </tr>
+        </thead>
+        <tbody id="scoreSummaryBody">
+          <!-- Rows will be added here -->
+        </tbody>
+      </table>
+      <div style="display: flex; justify-content: center; gap: 10px">
+        <button onclick="hideScoreBoard()" class="cancel-btn">Close</button>
+      </div>
     </div>
 
     <script>
-        const audioList = ["0", "1", "2", "3", "4", "6", "out", "over"];
-        let score = 0;
-        let wickets = 0;
-        let balls = 0;
-        let overs = 0;
-        let actions = [];
-        let currentStriker = sessionStorage.getItem("currentStriker") || "player1";
-        const popupNewPlayer = document.getElementById("popupNewPlayer");
-        const popupSummary = document.getElementById("popupSummary");
-        const scoreSummary = document.getElementById("scoreSummary");
-        const newPlayerNameInput = document.getElementById("newPlayerName");
+      const audioList = ["0", "1", "2", "3", "4", "6", "out", "over"];
+      let score = 0;
+      let wickets = 0;
+      let balls = 0;
+      let overs = 0;
+      let actions = [];
+      let currentStriker =
+        sessionStorage.getItem("currentStriker") || "player1";
+      const popupNewPlayer = document.getElementById("popupNewPlayer");
+      const popupSummary = document.getElementById("popupSummary");
+      const scoreSummary = document.getElementById("scoreSummary");
+      const newPlayerNameInput = document.getElementById("newPlayerName");
 
-        let totalOvers = parseInt(
-            sessionStorage.getItem("totalOvers") || 0
+      let totalOvers = parseInt(sessionStorage.getItem("totalOvers") || 0);
+      let target = parseInt(sessionStorage.getItem("target") || 0);
+
+      const logContainer = document.getElementById("logContainer");
+      const popup = document.getElementById("popup");
+      const popupout = document.getElementById("popupout");
+      const overlay = document.getElementById("overlay");
+      const popupTitle = document.getElementById("popupTitle");
+      const popupButtons = document.getElementById("popupButtons");
+      const popupOutButton = document.getElementById("popupOutButton");
+
+      const startContainer = document.getElementById("start-container");
+      const scoreContainer = document.getElementById("score-container");
+      const oversError = document.getElementById("overs-error");
+      const targetError = document.getElementById("target-error");
+      const requiredRuns = document.getElementById("requiredRuns");
+      const won = document.getElementById("won");
+      const back = document.getElementById("back");
+      const givenTarget = document.getElementById("givenTarget");
+      const totalOversDocument = document.getElementById("totalOvers");
+      const targetDocument = document.getElementById("target");
+      const inningsDisplay = document.getElementById("innings");
+      const player1Name = document.getElementById("player1Name");
+      const player2Name = document.getElementById("player2Name");
+
+      function startScoring() {
+        totalOvers = parseInt(totalOversDocument.value);
+        target = parseInt(targetDocument.value);
+        showInnings();
+        showRequired();
+
+        const isValid = validate();
+        if (!isValid) {
+          return;
+        }
+
+        sessionStorage.setItem("totalOvers", totalOvers);
+        sessionStorage.setItem("target", target);
+        sessionStorage.setItem(
+          "player1",
+          JSON.stringify({ name: player1Name.value, runs: 0, balls: 0 })
         );
-        let target = parseInt(sessionStorage.getItem("target") || 0);
 
-        const logContainer = document.getElementById("logContainer");
-        const popup = document.getElementById("popup");
-        const popupout = document.getElementById("popupout");
-        const overlay = document.getElementById("overlay");
-        const popupTitle = document.getElementById("popupTitle");
-        const popupButtons = document.getElementById("popupButtons");
-        const popupOutButton = document.getElementById("popupOutButton");
-
-        const startContainer = document.getElementById("start-container");
-        const scoreContainer = document.getElementById("score-container");
-        const oversError = document.getElementById("overs-error");
-        const targetError = document.getElementById("target-error");
-        const requiredRuns = document.getElementById("requiredRuns");
-        const won = document.getElementById("won");
-        const back = document.getElementById("back");
-        const givenTarget = document.getElementById("givenTarget");
-        const totalOversDocument = document.getElementById("totalOvers");
-        const targetDocument = document.getElementById("target");
-        const inningsDisplay = document.getElementById("innings");
-        const player1Name = document.getElementById("player1Name");
-        const player2Name = document.getElementById("player2Name");
-
-        function startScoring() {
-            totalOvers = parseInt(totalOversDocument.value);
-            target = parseInt(targetDocument.value);
-            showInnings();
-            showRequired();
-
-            const isValid = validate();
-            if (!isValid) {
-                return;
-            }
-
-            sessionStorage.setItem("totalOvers", totalOvers);
-            sessionStorage.setItem("target", target);
-            sessionStorage.setItem("player1", JSON.stringify({ name: player1Name.value, runs: 0, balls: 0 }));
-
-            sessionStorage.setItem("player2", JSON.stringify({ name: player2Name.value, runs: 0, balls: 0 }));
-            sessionStorage.setItem("currentStriker", "player1");
-            currentStriker = "player1";
-            if (totalOvers == 0) {
-                scoreContainer.style.display = "none";
-                oversError.style.display = "none";
-                targetError.style.display = "none";
-                won.style.display = "none";
-                back.style.display = "none";
-                sessionStorage.setItem("innings", 1);
-            }
-            if (!isNaN(target)) {
-            }
-
-            scoreContainer.style.display = "";
-            startContainer.style.display = "none";
-            back.style.display = "";
-            document.getElementById("boardTotalOvers").textContent =
-                totalOvers;
-            loadFromSessionStorage();
+        sessionStorage.setItem(
+          "player2",
+          JSON.stringify({ name: player2Name.value, runs: 0, balls: 0 })
+        );
+        sessionStorage.setItem("currentStriker", "player1");
+        currentStriker = "player1";
+        if (totalOvers == 0) {
+          scoreContainer.style.display = "none";
+          oversError.style.display = "none";
+          targetError.style.display = "none";
+          won.style.display = "none";
+          back.style.display = "none";
+          sessionStorage.setItem("innings", 1);
+        }
+        if (!isNaN(target)) {
         }
 
-        /* Toss Logic */
-        const popupToss = document.getElementById("popupToss");
-        const tossResult = document.getElementById("tossResult");
-        const tossCoinBtn = document.getElementById("tossCoinBtn");
-        const coin = document.getElementById("coin");
+        scoreContainer.style.display = "";
+        startContainer.style.display = "none";
+        back.style.display = "";
+        document.getElementById("boardTotalOvers").textContent = totalOvers;
+        loadFromSessionStorage();
+      }
 
-        function showTossPopup() {
-            popupToss.style.display = "block";
-            overlay.style.display = "block";
-            tossResult.textContent = "";
-            tossCoinBtn.disabled = false;
-            tossCoinBtn.style.display = 'inline-block';
-            tossCoinBtn.textContent = "Toss";
+      /* Toss Logic */
+      const popupToss = document.getElementById("popupToss");
+      const tossResult = document.getElementById("tossResult");
+      const tossCoinBtn = document.getElementById("tossCoinBtn");
+      const coin = document.getElementById("coin");
 
-            // Reset coin
-            coin.style.animation = "none";
-            coin.className = "coin"; // Reset classes
+      function showTossPopup() {
+        popupToss.style.display = "block";
+        overlay.style.display = "block";
+        tossResult.textContent = "";
+        tossCoinBtn.disabled = false;
+        tossCoinBtn.style.display = "inline-block";
+        tossCoinBtn.textContent = "Toss";
+
+        // Reset coin
+        coin.style.animation = "none";
+        coin.className = "coin"; // Reset classes
+      }
+
+      function hideTossPopup() {
+        popupToss.style.display = "none";
+        overlay.style.display = "none";
+      }
+
+      function tossCoin() {
+        playCoinFlip();
+        tossCoinBtn.disabled = true;
+        tossCoinBtn.textContent = "Tossing...";
+        tossResult.textContent = "";
+
+        // Random result
+        // Random result
+        const result = ["HEADS", "TAILS"][Math.floor(Math.random() * 2)];
+
+        // Reset animation
+        coin.className = "coin";
+
+        // Force reflow
+        void coin.offsetWidth;
+
+        // Apply animation class
+        if (result === "HEADS") {
+          coin.classList.add("flip-heads");
+        } else {
+          coin.classList.add("flip-tails");
         }
 
-        function hideTossPopup() {
-            popupToss.style.display = "none";
-            overlay.style.display = "none";
+        // Wait for animation to finish (3s)
+        setTimeout(() => {
+          finalizeToss(result);
+        }, 3000);
+      }
+
+      function finalizeToss(result) {
+        tossResult.textContent = result;
+        tossCoinBtn.style.display = "none";
+      }
+
+      function validate() {
+        const innings = sessionStorage.getItem("innings");
+        const isOversInvalid = isNaN(totalOvers) || totalOvers == 0;
+        const isTargetInvalid = isNaN(target) || target == 0;
+
+        if (innings == 1 && isOversInvalid) {
+          oversError.style.display = "";
+          return false;
         }
 
-        function tossCoin() {
-            playCoinFlip()
-            tossCoinBtn.disabled = true;
-            tossCoinBtn.textContent = "Tossing...";
-            tossResult.textContent = "";
+        if (innings == 2) {
+          if (isOversInvalid) {
+            oversError.style.display = "";
+          }
 
-            // Random result
-            // Random result
-            const result = ["HEADS", "TAILS"][Math.floor(Math.random() * 2)];
+          if (isTargetInvalid) {
+            targetError.style.display = "";
+          }
 
-            // Reset animation
-            coin.className = "coin";
+          if (isOversInvalid || isTargetInvalid) {
+            return false;
+          }
+        }
+        return true;
+      }
 
-            // Force reflow
-            void coin.offsetWidth;
+      function showInnings() {
+        if (isNaN(target)) {
+          inningsDisplay.textContent = "1st Innings";
+        } else {
+          inningsDisplay.textContent = "2nd Innings";
+        }
+      }
 
-            // Apply animation class
-            if (result === "HEADS") {
-                coin.classList.add("flip-heads");
-            } else {
-                coin.classList.add("flip-tails");
-            }
-
-            // Wait for animation to finish (3s)
-            setTimeout(() => {
-                finalizeToss(result);
-            }, 3000);
+      function showRequired() {
+        requiredRuns.style.display = "";
+        if (target > 0) {
+          requiredRuns.textContent = `Required ${target - score} of ${
+            totalOvers * 6 - (overs * 6 + balls)
+          } balls`;
+        } else {
+          requiredRuns.style.display = "none";
         }
 
-        function finalizeToss(result) {
-            tossResult.textContent = result;
-            tossCoinBtn.style.display = "none";
+        if (target - score <= 0) {
+          won.style.display = "";
+          back.style.display = "";
+          scoreContainer.style.display = "none";
+          startContainer.style.display = "none";
+          showMatchSummary("You Won!");
+        }
+      }
+
+      function updateDisplay() {
+        document.getElementById("score").textContent = score;
+        document.getElementById("wickets").textContent = wickets;
+        document.getElementById("overs").textContent = overs;
+        document.getElementById("balls").textContent = balls;
+        document.getElementById("player1").textContent = JSON.parse(
+          sessionStorage.getItem("player1")
+        ).name;
+        document.getElementById("player2").textContent = JSON.parse(
+          sessionStorage.getItem("player2")
+        ).name;
+        document.getElementById("player1Runs").textContent = JSON.parse(
+          sessionStorage.getItem("player1")
+        ).runs;
+        document.getElementById("player2Runs").textContent = JSON.parse(
+          sessionStorage.getItem("player2")
+        ).runs;
+        document.getElementById("player1Balls").textContent = JSON.parse(
+          sessionStorage.getItem("player1")
+        ).balls;
+        document.getElementById("player2Balls").textContent = JSON.parse(
+          sessionStorage.getItem("player2")
+        ).balls;
+
+        const p1Container = document.getElementById("player1Container");
+        const p2Container = document.getElementById("player2Container");
+
+        p1Container.classList.remove("active-player");
+        p2Container.classList.remove("active-player");
+
+        if (currentStriker === "player1") {
+          p1Container.classList.add("active-player");
+        } else {
+          p2Container.classList.add("active-player");
         }
 
+        if (score == 0 && overs == 0 && balls == 0) {
+          logContainer.innerHTML = "";
+        }
+        showRequired();
+        saveToSessionStorage();
+        overCompleted();
+      }
 
-        function validate() {
-            const innings = sessionStorage.getItem("innings");
-            const isOversInvalid = isNaN(totalOvers) || totalOvers == 0;
-            const isTargetInvalid = isNaN(target) || target == 0;
+      function addRuns(runs) {
+        // LOG ACTION BEFORE MODIFYING STATE
+        logAction(runs, runs == 4 ? "four" : runs == 6 ? "six" : "run");
 
-            if (innings == 1 && isOversInvalid) {
-                oversError.style.display = "";
-                return false;
-            }
+        score += runs;
 
-            if (innings == 2) {
-                if (isOversInvalid) {
-                    oversError.style.display = "";
-                }
+        // Update individual score
+        const currentPlayerKey = currentStriker;
+        const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
+        playerData.runs += runs;
+        playerData.balls += 1;
+        sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
 
-                if (isTargetInvalid) {
-                    targetError.style.display = "";
-                }
+        addBall();
 
-                if (isOversInvalid || isTargetInvalid) {
-                    return false;
-                }
-            }
-            return true;
+        if (runs % 2 !== 0) {
+          rotateStrike();
         }
 
-        function showInnings() {
-            if (isNaN(target)) {
-                inningsDisplay.textContent = "1st Innings";
-            } else {
-                inningsDisplay.textContent = "2nd Innings";
-            }
+        if (runs === 4 || runs === 6) {
+          showCelebration(runs);
+        }
+      }
+
+      function addWicket() {
+        const runScored = document.getElementById("scored");
+        let runs = 0;
+        if (runScored.value > 0) {
+          runs = parseInt(runScored.value);
         }
 
-        function showRequired() {
-            requiredRuns.style.display = "";
-            if (target > 0) {
-                requiredRuns.textContent = `Required ${target - score} of ${totalOvers * 6 - (overs * 6 + balls)
-                    } balls`;
-            } else {
-                requiredRuns.style.display = "none";
-            }
+        // LOG ACTION BEFORE MODIFYING STATE (including the extra runs)
+        logAction(runScored.value, "red", "W");
 
-            if (target - score <= 0) {
-                won.style.display = "";
-                back.style.display = "";
-                scoreContainer.style.display = "none";
-                startContainer.style.display = "none";
-                showMatchSummary("You Won!");
-            }
+        if (runs > 0) {
+          score += runs;
         }
 
-        function updateDisplay() {
-            document.getElementById("score").textContent = score;
-            document.getElementById("wickets").textContent = wickets;
-            document.getElementById("overs").textContent = overs;
-            document.getElementById("balls").textContent = balls;
-            document.getElementById("player1").textContent = JSON.parse(sessionStorage.getItem("player1")).name;
-            document.getElementById("player2").textContent = JSON.parse(sessionStorage.getItem("player2")).name;
-            document.getElementById("player1Runs").textContent = JSON.parse(sessionStorage.getItem("player1")).runs;
-            document.getElementById("player2Runs").textContent = JSON.parse(sessionStorage.getItem("player2")).runs;
-            document.getElementById("player1Balls").textContent = JSON.parse(sessionStorage.getItem("player1")).balls;
-            document.getElementById("player2Balls").textContent = JSON.parse(sessionStorage.getItem("player2")).balls;
+        // Update individual score for wicket ball
+        const currentPlayerKey = currentStriker;
+        const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
+        playerData.runs += runs;
+        playerData.balls += 1;
+        sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
 
+        wickets += 1;
+        addBall();
 
+        hidePopup();
 
-            const p1Container = document.getElementById("player1Container");
-            const p2Container = document.getElementById("player2Container");
+        // Handle Dismissal
+        handleDismissal();
+      }
 
-            p1Container.classList.remove("active-player");
-            p2Container.classList.remove("active-player");
+      function handleDismissal() {
+        const player1Radio = document.getElementById("radioPlayer1");
+        const player2Radio = document.getElementById("radioPlayer2");
 
-            if (currentStriker === "player1") {
-                p1Container.classList.add("active-player");
-            } else {
-                p2Container.classList.add("active-player");
-            }
+        let dismissedPlayerKey = "";
+        if (player1Radio.checked) dismissedPlayerKey = "player1";
+        else if (player2Radio.checked) dismissedPlayerKey = "player2";
 
-            if (score == 0 && overs == 0 && balls == 0) {
-                logContainer.innerHTML = "";
-            }
-            showRequired();
-            saveToSessionStorage();
-            overCompleted();
+        // If manual selection didn't happen or logic is ambiguous, default to current striker?
+        // The UI has radio buttons, so we trust them. But if user didn't select, we might have an issue.
+        // Let's assume user selects correctly or we default to currentStriker if none checked??
+        // Actually, the popup is "showOutPopup", user selects radio.
+
+        if (!dismissedPlayerKey) {
+          // Fallback or error? Let's default to currentStriker if logic permits,
+          // but radio is explicit. Let's assume user picks.
+          dismissedPlayerKey = currentStriker;
         }
 
-        function addRuns(runs) {
-            // LOG ACTION BEFORE MODIFYING STATE
-            logAction(runs, runs == 4 ? "four" : runs == 6 ? "six" : "run");
+        // Save fallen wicket
+        const dismissedPlayerData = JSON.parse(
+          sessionStorage.getItem(dismissedPlayerKey)
+        );
+        const fallenWickets = JSON.parse(
+          sessionStorage.getItem("fallenWickets") || "[]"
+        );
+        fallenWickets.push({
+          name: dismissedPlayerData.name,
+          runs: dismissedPlayerData.runs,
+          balls: dismissedPlayerData.balls,
+          wicketNumber: wickets,
+        });
+        sessionStorage.setItem("fallenWickets", JSON.stringify(fallenWickets));
 
-            score += runs;
+        // Show New Player Popup
+        showNewPlayerPopup(dismissedPlayerKey);
+      }
 
-            // Update individual score
-            const currentPlayerKey = currentStriker;
-            const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
-            playerData.runs += runs;
-            playerData.balls += 1;
-            sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
+      function showNewPlayerPopup(keyToReplace) {
+        popupNewPlayer.setAttribute("data-replace-key", keyToReplace);
+        popupNewPlayer.style.display = "block";
+        overlay.style.display = "block";
+        newPlayerNameInput.value = "";
+        newPlayerNameInput.focus();
+      }
 
-            addBall();
+      function addNewPlayer() {
+        const keyToReplace = popupNewPlayer.getAttribute("data-replace-key");
+        const newName = newPlayerNameInput.value;
 
-            if (runs % 2 !== 0) {
-                rotateStrike();
-            }
-
-            if (runs === 4 || runs === 6) {
-                showCelebration(runs);
-            }
+        if (newName.trim() === "") {
+          alert("Please enter a player name");
+          return;
         }
 
-        function addWicket() {
-            const runScored = document.getElementById("scored");
-            let runs = 0;
-            if (runScored.value > 0) {
-                runs = parseInt(runScored.value);
-            }
+        // Update Session Storage with new player
+        sessionStorage.setItem(
+          keyToReplace,
+          JSON.stringify({ name: newName, runs: 0, balls: 0 })
+        );
 
-            // LOG ACTION BEFORE MODIFYING STATE (including the extra runs)
-            logAction(runScored.value, "red", "W");
+        // Update current striker if the dismissed player was the striker
+        // The new player becomes the striker usually? Or does strike invoke logic?
+        // "once player got out select the option on the outpopup ... keep track ... provide add player button"
+        // Usually new batsman takes strike if crossed, or non-striker if not.
+        // For simplicity, let's assume new player takes the place of the dismissed one.
+        // If the dismissed player was currentStriker, new player becomes currentStriker.
+        // If dismissed player was non-striker (run out), new player becomes non-striker.
 
-            if (runs > 0) {
-                score += runs;
-            }
+        // However, we just replaced the data in 'keyToReplace' ('player1' or 'player2').
+        // The 'currentStriker' variable holds 'player1' or 'player2'.
+        // So if currentStriker was 'player1' and we replaced 'player1', the pointer is correct.
 
-            // Update individual score for wicket ball
-            const currentPlayerKey = currentStriker;
-            const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
-            playerData.runs += runs;
-            playerData.balls += 1;
-            sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
+        hidePopup();
+        updateDisplay();
+      }
 
-            wickets += 1;
-            addBall();
-
-            hidePopup();
-
-            // Handle Dismissal
-            handleDismissal();
+      function addBall() {
+        balls += 1;
+        if (balls >= 6) {
+          setTimeout(() => {
+            play("over");
+          }, 1000);
+          overs += 1;
+          balls = 0;
+          rotateStrike(); // Rotate strike at end of over
         }
+        updateDisplay();
+      }
 
-        function handleDismissal() {
-            const player1Radio = document.getElementById("radioPlayer1");
-            const player2Radio = document.getElementById("radioPlayer2");
+      function rotateStrike() {
+        currentStriker = currentStriker === "player1" ? "player2" : "player1";
+        sessionStorage.setItem("currentStriker", currentStriker);
+        updateDisplay();
+      }
 
-            let dismissedPlayerKey = "";
-            if (player1Radio.checked) dismissedPlayerKey = "player1";
-            else if (player2Radio.checked) dismissedPlayerKey = "player2";
+      function showPopup(type) {
+        popup.style.display = "block";
+        overlay.style.display = "block";
+        popupTitle.textContent = `Select Runs for ${type}`;
+        popupButtons.innerHTML = "";
 
-            // If manual selection didn't happen or logic is ambiguous, default to current striker?
-            // The UI has radio buttons, so we trust them. But if user didn't select, we might have an issue.
-            // Let's assume user selects correctly or we default to currentStriker if none checked??
-            // Actually, the popup is "showOutPopup", user selects radio.
-
-            if (!dismissedPlayerKey) {
-                // Fallback or error? Let's default to currentStriker if logic permits, 
-                // but radio is explicit. Let's assume user picks.
-                dismissedPlayerKey = currentStriker;
-            }
-
-            // Save fallen wicket
-            const dismissedPlayerData = JSON.parse(sessionStorage.getItem(dismissedPlayerKey));
-            const fallenWickets = JSON.parse(sessionStorage.getItem("fallenWickets") || "[]");
-            fallenWickets.push({
-                name: dismissedPlayerData.name,
-                runs: dismissedPlayerData.runs,
-                balls: dismissedPlayerData.balls,
-                wicketNumber: wickets
-            });
-            sessionStorage.setItem("fallenWickets", JSON.stringify(fallenWickets));
-
-            // Show New Player Popup
-            showNewPlayerPopup(dismissedPlayerKey);
-        }
-
-        function showNewPlayerPopup(keyToReplace) {
-            popupNewPlayer.setAttribute("data-replace-key", keyToReplace);
-            popupNewPlayer.style.display = "block";
-            overlay.style.display = "block";
-            newPlayerNameInput.value = "";
-            newPlayerNameInput.focus();
-        }
-
-        function addNewPlayer() {
-            const keyToReplace = popupNewPlayer.getAttribute("data-replace-key");
-            const newName = newPlayerNameInput.value;
-
-            if (newName.trim() === "") {
-                alert("Please enter a player name");
-                return;
-            }
-
-            // Update Session Storage with new player
-            sessionStorage.setItem(keyToReplace, JSON.stringify({ name: newName, runs: 0, balls: 0 }));
-
-            // Update current striker if the dismissed player was the striker
-            // The new player becomes the striker usually? Or does strike invoke logic?
-            // "once player got out select the option on the outpopup ... keep track ... provide add player button"
-            // Usually new batsman takes strike if crossed, or non-striker if not. 
-            // For simplicity, let's assume new player takes the place of the dismissed one.
-            // If the dismissed player was currentStriker, new player becomes currentStriker.
-            // If dismissed player was non-striker (run out), new player becomes non-striker.
-
-            // However, we just replaced the data in 'keyToReplace' ('player1' or 'player2'). 
-            // The 'currentStriker' variable holds 'player1' or 'player2'. 
-            // So if currentStriker was 'player1' and we replaced 'player1', the pointer is correct.
-
-            hidePopup();
-            updateDisplay();
-        }
-
-        function addBall() {
-            balls += 1;
-            if (balls >= 6) {
-                setTimeout(() => {
-                    play("over");
-                }, 1000);
-                overs += 1;
-                balls = 0;
-                rotateStrike(); // Rotate strike at end of over
-            }
-            updateDisplay();
-        }
-
-        function rotateStrike() {
-            currentStriker = currentStriker === "player1" ? "player2" : "player1";
-            sessionStorage.setItem("currentStriker", currentStriker);
-            updateDisplay();
-        }
-
-        function showPopup(type) {
-            popup.style.display = "block";
-            overlay.style.display = "block";
-            popupTitle.textContent = `Select Runs for ${type}`;
-            popupButtons.innerHTML = "";
-
-            if (type === 'NB') {
-                const div = document.createElement("div");
-                div.style.marginBottom = "15px";
-                div.innerHTML = `
+        if (type === "NB") {
+          const div = document.createElement("div");
+          div.style.marginBottom = "15px";
+          div.innerHTML = `
                     <label style="display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: bold; cursor: pointer;">
                         <input type="checkbox" id="nbToBatsman" style="width: 20px; height: 20px;">
                         Runs to Batsman?
                     </label>
                 `;
-                popupButtons.appendChild(div);
+          popupButtons.appendChild(div);
+        }
+
+        for (let i = 0; i <= 6; i++) {
+          const btn = document.createElement("button");
+          btn.textContent = `${type} + ${i}`;
+          btn.onclick = () => {
+            let isBatsmanRun = false;
+            if (type === "NB") {
+              const checkbox = document.getElementById("nbToBatsman");
+              if (checkbox && checkbox.checked) {
+                isBatsmanRun = true;
+              }
             }
-
-            for (let i = 0; i <= 6; i++) {
-                const btn = document.createElement("button");
-                btn.textContent = `${type} + ${i}`;
-                btn.onclick = () => {
-                    let isBatsmanRun = false;
-                    if (type === 'NB') {
-                        const checkbox = document.getElementById("nbToBatsman");
-                        if (checkbox && checkbox.checked) {
-                            isBatsmanRun = true;
-                        }
-                    }
-                    handleExtra(type, "extra", i, isBatsmanRun);
-                    hidePopup();
-                };
-                popupButtons.appendChild(btn);
-            }
-        }
-
-        function showOutPopup() {
-            popupout.style.display = "block";
-            overlay.style.display = "block";
-            document.getElementById("player1NameDisplay").textContent = JSON.parse(sessionStorage.getItem("player1")).name;
-            document.getElementById("player2NameDisplay").textContent = JSON.parse(sessionStorage.getItem("player2")).name;
-            document.getElementById("scored").value = undefined;
-
-            // Auto-select current striker
-            if (currentStriker === 'player1') {
-                document.getElementById('radioPlayer1').checked = true;
-            } else {
-                document.getElementById('radioPlayer2').checked = true;
-            }
-        }
-
-        function handleExtra(type, color, runs, isBatsmanRun = false) {
-            logAction(runs, color, type);
-            score += 1 + runs; // 1 for the extra plus any additional runs
-
-            if (isBatsmanRun && runs > 0) {
-                const currentPlayerKey = currentStriker;
-                const playerData = JSON.parse(sessionStorage.getItem(currentPlayerKey));
-                playerData.runs += runs;
-                // Note: No Ball usually doesn't count as ball faced, so we don't increment balls.
-                // Confirm with user logic if needed, but for now we follow existing "no addBall" for NB.
-                sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
-            }
-
-            if (type == "BY" || type == "LB") {
-                addBall();
-            }
-            if (runs % 2 !== 0) {
-                rotateStrike();
-            }
-            updateDisplay();
-        }
-
-        function logAction(runs, color, type = "") {
-            // Snapshot current state BEFORE this action fully resolves (or rather, the state IS the result of previous actions, 
-            // but since we call logAction inside addRuns/addWicket, we really want to capture the state *before* we applied the changes? 
-            // WAIT. existing code called logAction AFTER updating score. 
-            // If we want UNDO to work, we need to save the state AS IT WAS BEFORE the action.
-            // In my updated `addRuns` above, I called `logAction` FIRST.
-            // So now `score` etc are at their OLD values. Perfect.
-
-            const stateSnapshot = {
-                score: score,
-                wickets: wickets,
-                balls: balls,
-                overs: overs,
-                currentStriker: currentStriker,
-                player1: JSON.parse(sessionStorage.getItem("player1")),
-                player2: JSON.parse(sessionStorage.getItem("player2")),
-                fallenWickets: JSON.parse(sessionStorage.getItem("fallenWickets") || "[]")
-            };
-
-            actions.push({
-                runs,
-                color,
-                type,
-                state: stateSnapshot
-            });
-
-            // We pass runs/color just for the visual log bubble
-            logActionDisplay(runs, color, type);
-        }
-
-        function logActionDisplay(runs, color, type = "") {
-            // Only update the UI bubble
-            const log = document.createElement("div");
-            log.className = `ball-log ${color}`;
-            log.innerHTML = `<div>${runs}</div>${type ? `<div>${type}</div>` : ""}`;
-            logContainer.appendChild(log);
-            logContainer.scrollLeft = logContainer.scrollWidth;
-            // No saveToSessionStorage here, we do it in updateDisplay mainly
-        }
-
-        function overCompleted() {
-            if (overs == totalOvers && isNaN(target)) {
-                // First Innings Complete
-                const targetSet = score + 1;
-                // givenTarget.textContent = `Target ${targetSet}`; // Obscured anyway
-                // givenTarget.style.display = "";
-
-                // Show summary with target
-                showMatchSummary("Innings Break", targetSet);
-            } else {
-                if (wickets >= 10 || overs == totalOvers) {
-                    // Match End (Lost or All Out)
-                    let msg = wickets >= 10 ? "All Out!" : "Overs Completed";
-                    if (!isNaN(target) && target > 0 && score < target) {
-                        msg = "You Lost! Target Not Met.";
-                    }
-                    showMatchSummary(msg);
-                }
-            }
-        }
-
-        function showMatchSummary(title, targetVal) {
-            popupSummary.style.display = "block";
-            overlay.style.display = "block";
-            document.querySelector("#popupSummary h3").textContent = title || "Match Summary";
-
-            const summaryTarget = document.getElementById("summaryTarget");
-            if (targetVal) {
-                summaryTarget.textContent = `Target: ${targetVal}`;
-                summaryTarget.style.display = "block";
-            } else {
-                summaryTarget.style.display = "none";
-            }
-
-            const tbody = document.getElementById("summaryBody");
-            tbody.innerHTML = "";
-
-            const allPlayers = getAllPlayerStats();
-
-            allPlayers.forEach(p => {
-                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
-                `;
-                tbody.appendChild(row);
-            });
-
-            // Hide game container elements to focus on summary
-            scoreContainer.style.display = "none";
-            startContainer.style.display = "none";
-            back.style.display = "none";
-        }
-
-        function showScoreBoard() {
-            scoreSummary.style.display = "block";
-            overlay.style.display = "block";
-            document.querySelector("#scoreSummary h3").textContent = "Score Board";
-
-            const tbody = document.getElementById("scoreSummaryBody");
-            tbody.innerHTML = "";
-            const allPlayers = getAllPlayerStats();
-
-            allPlayers.forEach(p => {
-                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function hideScoreBoard() {
-            scoreSummary.style.display = "none";
-            overlay.style.display = "none";
-            back.style.display = "flex";
-        }
-
-        function getAllPlayerStats() {
-            const fallenWickets = JSON.parse(sessionStorage.getItem("fallenWickets") || "[]").map(p => ({ ...p, status: "Out" }));
-            const p1 = JSON.parse(sessionStorage.getItem("player1"));
-            const p2 = JSON.parse(sessionStorage.getItem("player2"));
-
-            // Mark current players as Not Out
-            p1.status = "Not Out";
-            p2.status = "Not Out";
-
-            return [...fallenWickets, p1, p2];
-        }
-
-        function downloadSummary() {
-            const allPlayers = getAllPlayerStats();
-            let content = "Match Summary\n";
-            content += "--------------------------------------------------\n";
-            content += "Player Name       | Runs | Balls | SR     | Status\n";
-            content += "--------------------------------------------------\n";
-
-            allPlayers.forEach(p => {
-                const sr = p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
-                const padName = p.name.padEnd(17, " ");
-                const padRuns = p.runs.toString().padEnd(4, " ");
-                const padBalls = p.balls.toString().padEnd(5, " ");
-                const padSR = sr.padEnd(6, " ");
-                content += `${padName} | ${padRuns} | ${padBalls} | ${padSR} | ${p.status}\n`;
-            });
-
-            content += "--------------------------------------------------\n";
-            content += `Total Score: ${score}/${wickets} (${overs}.${balls} Overs)\n`;
-
-            const blob = new Blob([content], { type: "text/plain" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "match_summary.txt";
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        function restart() {
-            scoreContainer.style.display = "none";
-            oversError.style.display = "none";
-            targetError.style.display = "none";
-            startContainer.style.display = "";
-            won.style.display = "none";
-            back.style.display = "none";
-            popupSummary.style.display = "none";
-            overlay.style.display = "none";
-
-            sessionStorage.clear();
-            resetState();
-        }
-
-        function undo() {
-            if (actions.length === 0) return;
-            const lastAction = actions.pop();
-            const prevState = lastAction.state;
-
-            if (prevState) {
-                // Restore State
-                score = prevState.score;
-                wickets = prevState.wickets;
-                balls = prevState.balls;
-                overs = prevState.overs;
-                currentStriker = prevState.currentStriker;
-
-                sessionStorage.setItem("player1", JSON.stringify(prevState.player1));
-                sessionStorage.setItem("player2", JSON.stringify(prevState.player2));
-                sessionStorage.setItem("fallenWickets", JSON.stringify(prevState.fallenWickets));
-                sessionStorage.setItem("currentStriker", currentStriker);
-            } else {
-                // Fallback for old actions if any
-                resetState(); // This was the old buggy way, hopefully we don't hit this much
-            }
-
-            updateDisplay();
-
-            // Rebuild Log UI
-            logContainer.innerHTML = "";
-            actions.forEach((action) =>
-                logActionDisplay(action.runs, action.color, action.type)
-            );
-        }
-
-        function handleOverlayClick() {
-            if (popupNewPlayer.style.display === "block") {
-                return;
-            }
+            handleExtra(type, "extra", i, isBatsmanRun);
             hidePopup();
+          };
+          popupButtons.appendChild(btn);
         }
+      }
 
-        function hidePopup() {
-            popup.style.display = "none";
-            popupout.style.display = "none";
-            popupNewPlayer.style.display = "none";
-            // Do not hide popupSummary here blindly, as it should leverage overlay
-            // But if we want consistent overlay behavior, we could. 
-            // However, summary usually blocks until restart. 
-            // Let's safe-guard: if summary is open, don't just close it unless we restart.
-            if (popupSummary.style.display !== "block") {
-                overlay.style.display = "none";
-            }
-        }
+      function showOutPopup() {
+        popupout.style.display = "block";
+        overlay.style.display = "block";
+        document.getElementById("player1NameDisplay").textContent = JSON.parse(
+          sessionStorage.getItem("player1")
+        ).name;
+        document.getElementById("player2NameDisplay").textContent = JSON.parse(
+          sessionStorage.getItem("player2")
+        ).name;
+        document.getElementById("scored").value = undefined;
 
-        function resetState() {
-            score = 0;
-            wickets = 0;
-            balls = 0;
-            overs = 0;
-        }
-
-        function saveToSessionStorage() {
-            sessionStorage.setItem("score", score);
-            sessionStorage.setItem("wickets", wickets);
-            sessionStorage.setItem("balls", balls);
-            sessionStorage.setItem("overs", overs);
-            sessionStorage.setItem("currentStriker", currentStriker);
-            sessionStorage.setItem("actions", JSON.stringify(actions));
-            sessionStorage.setItem("logHTML", logContainer.innerHTML);
-        }
-
-        function loadFromSessionStorage() {
-            score = parseInt(sessionStorage.getItem("score")) || 0;
-            wickets = parseInt(sessionStorage.getItem("wickets")) || 0;
-            balls = parseInt(sessionStorage.getItem("balls")) || 0;
-
-            overs = parseInt(sessionStorage.getItem("overs")) || 0;
-            currentStriker = sessionStorage.getItem("currentStriker") || "player1";
-            totalOvers = parseInt(
-                sessionStorage.getItem("totalOvers") || 0
-            );
-            actions = JSON.parse(sessionStorage.getItem("actions")) || [];
-            logContainer.innerHTML =
-                sessionStorage.getItem("logHTML") || "";
-            showInnings();
-            updateDisplay();
-        }
-
-        function selectedInnings(value) {
-            sessionStorage.setItem("innings", value);
-            oversError.style.display = "none";
-            targetError.style.display = "none";
-            if (value == 1) {
-                targetDocument.disabled = true;
-                targetDocument.value = "";
-            } else if (value == 2) {
-                targetDocument.disabled = false;
-            }
-        }
-
-        function play(name) {
-            const selectAudio = document.getElementById("selectAudio");
-            if (selectAudio.checked) {
-                const audio = document.getElementById(`audio${name}`);
-                audio.muted = false;
-                audio.play();
-            }
-        }
-
-        function playCoinFlip() {
-            const coinFlipAudio = document.getElementById("coinFlipAudio");
-            coinFlipAudio.muted = false;
-            coinFlipAudio.play();
-        }
-
-        function loadCoinFlipAudio() {
-            const coinFlipAudio = document.getElementById("coinFlipAudio");
-            coinFlipAudio.muted = true;
-            coinFlipAudio.preload = "auto";
-        }
-
-        function loadAudio() {
-            const selectAudio = document.getElementById("selectAudio");
-            if (selectAudio.checked) {
-                audioList.forEach((filename) => {
-                    const audioTag = document.createElement("audio");
-                    audioTag.id = `audio${filename}`;
-                    audioTag.src = `audio/${filename}.mp3`;
-                    audioTag.muted = true;
-                    audioTag.preload = "auto";
-                    audios.appendChild(audioTag);
-                });
-            }
-        }
-
-        loadAudio();
-        loadCoinFlipAudio();
-
-        if (totalOvers == 0) {
-            scoreContainer.style.display = "none";
-            oversError.style.display = "none";
-            targetError.style.display = "none";
-            won.style.display = "none";
-            back.style.display = "none";
-            sessionStorage.setItem("innings", 1);
+        // Auto-select current striker
+        if (currentStriker === "player1") {
+          document.getElementById("radioPlayer1").checked = true;
         } else {
-            scoreContainer.style.display = "";
-            startContainer.style.display = "none";
-            won.style.display = "none";
+          document.getElementById("radioPlayer2").checked = true;
+        }
+      }
 
-            document.getElementById("boardTotalOvers").textContent =
-                totalOvers;
-            window.onload = loadFromSessionStorage;
+      function handleExtra(type, color, runs, isBatsmanRun = false) {
+        logAction(runs, color, type);
+        score += 1 + runs; // 1 for the extra plus any additional runs
+
+        if (isBatsmanRun && runs > 0) {
+          const currentPlayerKey = currentStriker;
+          const playerData = JSON.parse(
+            sessionStorage.getItem(currentPlayerKey)
+          );
+          playerData.runs += runs;
+          // Note: No Ball usually doesn't count as ball faced, so we don't increment balls.
+          // Confirm with user logic if needed, but for now we follow existing "no addBall" for NB.
+          sessionStorage.setItem(currentPlayerKey, JSON.stringify(playerData));
         }
 
-        function showCelebration(runs) {
-            const overlay = document.getElementById("celebrationOverlay");
-            const text = document.getElementById("celebrationText");
+        if (type == "BY" || type == "LB") {
+          addBall();
+        }
+        if (runs % 2 !== 0) {
+          rotateStrike();
+        }
+        updateDisplay();
+      }
 
-            overlay.classList.remove("celebration-active");
-            void overlay.offsetWidth; // Trigger reflow to restart animation if needed
+      function logAction(runs, color, type = "") {
+        // Snapshot current state BEFORE this action fully resolves (or rather, the state IS the result of previous actions,
+        // but since we call logAction inside addRuns/addWicket, we really want to capture the state *before* we applied the changes?
+        // WAIT. existing code called logAction AFTER updating score.
+        // If we want UNDO to work, we need to save the state AS IT WAS BEFORE the action.
+        // In my updated `addRuns` above, I called `logAction` FIRST.
+        // So now `score` etc are at their OLD values. Perfect.
 
-            if (runs === 4) {
-                text.textContent = "4";
-                text.className = "celebration-text celebration-4";
-            } else if (runs === 6) {
-                text.textContent = "6";
-                text.className = "celebration-text celebration-6";
+        const stateSnapshot = {
+          score: score,
+          wickets: wickets,
+          balls: balls,
+          overs: overs,
+          currentStriker: currentStriker,
+          player1: JSON.parse(sessionStorage.getItem("player1")),
+          player2: JSON.parse(sessionStorage.getItem("player2")),
+          fallenWickets: JSON.parse(
+            sessionStorage.getItem("fallenWickets") || "[]"
+          ),
+        };
+
+        actions.push({
+          runs,
+          color,
+          type,
+          state: stateSnapshot,
+        });
+
+        // We pass runs/color just for the visual log bubble
+        logActionDisplay(runs, color, type);
+      }
+
+      function logActionDisplay(runs, color, type = "") {
+        // Only update the UI bubble
+        const log = document.createElement("div");
+        log.className = `ball-log ${color}`;
+        log.innerHTML = `<div>${runs}</div>${type ? `<div>${type}</div>` : ""}`;
+        logContainer.appendChild(log);
+        logContainer.scrollLeft = logContainer.scrollWidth;
+        // No saveToSessionStorage here, we do it in updateDisplay mainly
+      }
+
+      function overCompleted() {
+        if (overs == totalOvers && isNaN(target)) {
+          // First Innings Complete
+          const targetSet = score + 1;
+          // givenTarget.textContent = `Target ${targetSet}`; // Obscured anyway
+          // givenTarget.style.display = "";
+
+          // Show summary with target
+          showMatchSummary("Innings Break", targetSet);
+        } else {
+          if (wickets >= 10 || overs == totalOvers) {
+            // Match End (Lost or All Out)
+            let msg = wickets >= 10 ? "All Out!" : "Overs Completed";
+            if (!isNaN(target) && target > 0 && score < target) {
+              msg = "You Lost! Target Not Met.";
             }
+            showMatchSummary(msg);
+          }
+        }
+      }
 
-            overlay.classList.add("celebration-active");
+      function showMatchSummary(title, targetVal) {
+        popupSummary.style.display = "block";
+        overlay.style.display = "block";
+        document.querySelector("#popupSummary h3").textContent =
+          title || "Match Summary";
 
-            // Trigger blast animation
-            createParticles(runs);
-
-            // Remove class after animation completes (2s)
-            setTimeout(() => {
-                overlay.classList.remove("celebration-active");
-            }, 2000);
+        const summaryTarget = document.getElementById("summaryTarget");
+        if (targetVal) {
+          summaryTarget.textContent = `Target: ${targetVal}`;
+          summaryTarget.style.display = "block";
+        } else {
+          summaryTarget.style.display = "none";
         }
 
-        function createParticles(runs) {
-            const overlay = document.getElementById("celebrationOverlay");
-            const particleCount = 50;
-            const colors4 = ['#e67e22', '#f1c40f', '#d35400', '#e74c3c'];
-            const colors6 = ['#2ecc71', '#27ae60', '#f1c40f', '#1abc9c'];
-            const colors = runs === 4 ? colors4 : colors6;
+        const tbody = document.getElementById("summaryBody");
+        tbody.innerHTML = "";
 
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement("div");
-                particle.classList.add("particle");
+        const allPlayers = getAllPlayerStats();
 
-                // Randomize position and movement
-                const angle = Math.random() * Math.PI * 2;
-                const velocity = Math.random() * 200 + 100; // Distance to travel
-                const tx = Math.cos(angle) * velocity + 'px';
-                const ty = Math.sin(angle) * velocity + 'px';
+        allPlayers.forEach((p) => {
+          const sr =
+            p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
+                `;
+          tbody.appendChild(row);
+        });
 
-                particle.style.setProperty('--tx', tx);
-                particle.style.setProperty('--ty', ty);
+        // Hide game container elements to focus on summary
+        scoreContainer.style.display = "none";
+        startContainer.style.display = "none";
+        back.style.display = "none";
+      }
 
-                // Randomize color
-                particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      function showScoreBoard() {
+        scoreSummary.style.display = "block";
+        overlay.style.display = "block";
+        document.querySelector("#scoreSummary h3").textContent = "Score Board";
 
-                // Randomize size slightly
-                const size = Math.random() * 8 + 4 + 'px';
-                particle.style.width = size;
-                particle.style.height = size;
+        const tbody = document.getElementById("scoreSummaryBody");
+        tbody.innerHTML = "";
+        const allPlayers = getAllPlayerStats();
 
-                // Animate
-                particle.style.animation = `explode 1s ease-out forwards`;
+        allPlayers.forEach((p) => {
+          const sr =
+            p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+          const row = document.createElement("tr");
+          row.innerHTML = `
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.name}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.runs}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.balls}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${sr}</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">${p.status}</td>
+                `;
+          tbody.appendChild(row);
+        });
+      }
 
-                overlay.appendChild(particle);
+      function hideScoreBoard() {
+        scoreSummary.style.display = "none";
+        overlay.style.display = "none";
+        back.style.display = "flex";
+      }
 
-                // Clean up
-                setTimeout(() => {
-                    particle.remove();
-                }, 1000);
-            }
+      function getAllPlayerStats() {
+        const fallenWickets = JSON.parse(
+          sessionStorage.getItem("fallenWickets") || "[]"
+        ).map((p) => ({ ...p, status: "Out" }));
+        const p1 = JSON.parse(sessionStorage.getItem("player1"));
+        const p2 = JSON.parse(sessionStorage.getItem("player2"));
+
+        // Mark current players as Not Out
+        p1.status = "Not Out";
+        p2.status = "Not Out";
+
+        return [...fallenWickets, p1, p2];
+      }
+
+      function downloadSummary() {
+        const allPlayers = getAllPlayerStats();
+        let content = "Match Summary\n";
+        content += "--------------------------------------------------\n";
+        content += "Player Name       | Runs | Balls | SR     | Status\n";
+        content += "--------------------------------------------------\n";
+
+        allPlayers.forEach((p) => {
+          const sr =
+            p.balls > 0 ? ((p.runs / p.balls) * 100).toFixed(2) : "0.00";
+          const padName = p.name.padEnd(17, " ");
+          const padRuns = p.runs.toString().padEnd(4, " ");
+          const padBalls = p.balls.toString().padEnd(5, " ");
+          const padSR = sr.padEnd(6, " ");
+          content += `${padName} | ${padRuns} | ${padBalls} | ${padSR} | ${p.status}\n`;
+        });
+
+        content += "--------------------------------------------------\n";
+        content += `Total Score: ${score}/${wickets} (${overs}.${balls} Overs)\n`;
+
+        const blob = new Blob([content], { type: "text/plain" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "match_summary.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function restart() {
+        scoreContainer.style.display = "none";
+        oversError.style.display = "none";
+        targetError.style.display = "none";
+        startContainer.style.display = "";
+        won.style.display = "none";
+        back.style.display = "none";
+        popupSummary.style.display = "none";
+        overlay.style.display = "none";
+
+        sessionStorage.clear();
+        resetState();
+      }
+
+      function undo() {
+        if (actions.length === 0) return;
+        const lastAction = actions.pop();
+        const prevState = lastAction.state;
+
+        if (prevState) {
+          // Restore State
+          score = prevState.score;
+          wickets = prevState.wickets;
+          balls = prevState.balls;
+          overs = prevState.overs;
+          currentStriker = prevState.currentStriker;
+
+          sessionStorage.setItem("player1", JSON.stringify(prevState.player1));
+          sessionStorage.setItem("player2", JSON.stringify(prevState.player2));
+          sessionStorage.setItem(
+            "fallenWickets",
+            JSON.stringify(prevState.fallenWickets)
+          );
+          sessionStorage.setItem("currentStriker", currentStriker);
+        } else {
+          // Fallback for old actions if any
+          resetState(); // This was the old buggy way, hopefully we don't hit this much
         }
+
+        updateDisplay();
+
+        // Rebuild Log UI
+        logContainer.innerHTML = "";
+        actions.forEach((action) =>
+          logActionDisplay(action.runs, action.color, action.type)
+        );
+      }
+
+      function handleOverlayClick() {
+        if (popupNewPlayer.style.display === "block") {
+          return;
+        }
+        hidePopup();
+      }
+
+      function hidePopup() {
+        popup.style.display = "none";
+        popupout.style.display = "none";
+        popupNewPlayer.style.display = "none";
+        // Do not hide popupSummary here blindly, as it should leverage overlay
+        // But if we want consistent overlay behavior, we could.
+        // However, summary usually blocks until restart.
+        // Let's safe-guard: if summary is open, don't just close it unless we restart.
+        if (popupSummary.style.display !== "block") {
+          overlay.style.display = "none";
+        }
+      }
+
+      function resetState() {
+        score = 0;
+        wickets = 0;
+        balls = 0;
+        overs = 0;
+      }
+
+      function saveToSessionStorage() {
+        sessionStorage.setItem("score", score);
+        sessionStorage.setItem("wickets", wickets);
+        sessionStorage.setItem("balls", balls);
+        sessionStorage.setItem("overs", overs);
+        sessionStorage.setItem("currentStriker", currentStriker);
+        sessionStorage.setItem("actions", JSON.stringify(actions));
+        sessionStorage.setItem("logHTML", logContainer.innerHTML);
+      }
+
+      function loadFromSessionStorage() {
+        score = parseInt(sessionStorage.getItem("score")) || 0;
+        wickets = parseInt(sessionStorage.getItem("wickets")) || 0;
+        balls = parseInt(sessionStorage.getItem("balls")) || 0;
+
+        overs = parseInt(sessionStorage.getItem("overs")) || 0;
+        currentStriker = sessionStorage.getItem("currentStriker") || "player1";
+        totalOvers = parseInt(sessionStorage.getItem("totalOvers") || 0);
+        actions = JSON.parse(sessionStorage.getItem("actions")) || [];
+        logContainer.innerHTML = sessionStorage.getItem("logHTML") || "";
+        showInnings();
+        updateDisplay();
+      }
+
+      function selectedInnings(value) {
+        sessionStorage.setItem("innings", value);
+        oversError.style.display = "none";
+        targetError.style.display = "none";
+        if (value == 1) {
+          targetDocument.disabled = true;
+          targetDocument.value = "";
+        } else if (value == 2) {
+          targetDocument.disabled = false;
+        }
+      }
+
+      function play(name) {
+        const selectAudio = document.getElementById("selectAudio");
+        if (selectAudio.checked) {
+          const audio = document.getElementById(`audio${name}`);
+          audio.muted = false;
+          audio.play();
+        }
+      }
+
+      function playCoinFlip() {
+        const coinFlipAudio = document.getElementById("coinFlipAudio");
+        coinFlipAudio.muted = false;
+        coinFlipAudio.play();
+      }
+
+      function loadCoinFlipAudio() {
+        const coinFlipAudio = document.getElementById("coinFlipAudio");
+        coinFlipAudio.muted = true;
+        coinFlipAudio.preload = "auto";
+      }
+
+      function loadAudio() {
+        const selectAudio = document.getElementById("selectAudio");
+        if (selectAudio.checked) {
+          audioList.forEach((filename) => {
+            const audioTag = document.createElement("audio");
+            audioTag.id = `audio${filename}`;
+            audioTag.src = `audio/${filename}.mp3`;
+            audioTag.muted = true;
+            audioTag.preload = "auto";
+            audios.appendChild(audioTag);
+          });
+        }
+      }
+
+      loadAudio();
+      loadCoinFlipAudio();
+
+      if (totalOvers == 0) {
+        scoreContainer.style.display = "none";
+        oversError.style.display = "none";
+        targetError.style.display = "none";
+        won.style.display = "none";
+        back.style.display = "none";
+        sessionStorage.setItem("innings", 1);
+      } else {
+        scoreContainer.style.display = "";
+        startContainer.style.display = "none";
+        won.style.display = "none";
+
+        document.getElementById("boardTotalOvers").textContent = totalOvers;
+        window.onload = loadFromSessionStorage;
+      }
+
+      function showCelebration(runs) {
+        const overlay = document.getElementById("celebrationOverlay");
+        const text = document.getElementById("celebrationText");
+
+        overlay.classList.remove("celebration-active");
+        void overlay.offsetWidth; // Trigger reflow to restart animation if needed
+
+        if (runs === 4) {
+          text.textContent = "4";
+          text.className = "celebration-text celebration-4";
+        } else if (runs === 6) {
+          text.textContent = "6";
+          text.className = "celebration-text celebration-6";
+        }
+
+        overlay.classList.add("celebration-active");
+
+        // Trigger blast animation
+        createParticles(runs);
+
+        // Remove class after animation completes (2s)
+        setTimeout(() => {
+          overlay.classList.remove("celebration-active");
+        }, 2000);
+      }
+
+      function createParticles(runs) {
+        const overlay = document.getElementById("celebrationOverlay");
+        const particleCount = 50;
+        const colors4 = ["#e67e22", "#f1c40f", "#d35400", "#e74c3c"];
+        const colors6 = ["#2ecc71", "#27ae60", "#f1c40f", "#1abc9c"];
+        const colors = runs === 4 ? colors4 : colors6;
+
+        for (let i = 0; i < particleCount; i++) {
+          const particle = document.createElement("div");
+          particle.classList.add("particle");
+
+          // Randomize position and movement
+          const angle = Math.random() * Math.PI * 2;
+          const velocity = Math.random() * 200 + 100; // Distance to travel
+          const tx = Math.cos(angle) * velocity + "px";
+          const ty = Math.sin(angle) * velocity + "px";
+
+          particle.style.setProperty("--tx", tx);
+          particle.style.setProperty("--ty", ty);
+
+          // Randomize color
+          particle.style.backgroundColor =
+            colors[Math.floor(Math.random() * colors.length)];
+
+          // Randomize size slightly
+          const size = Math.random() * 8 + 4 + "px";
+          particle.style.width = size;
+          particle.style.height = size;
+
+          // Animate
+          particle.style.animation = `explode 1s ease-out forwards`;
+
+          overlay.appendChild(particle);
+
+          // Clean up
+          setTimeout(() => {
+            particle.remove();
+          }, 1000);
+        }
+      }
     </script>
-</body>
-
+  </body>
 </html>
