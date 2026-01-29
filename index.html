@@ -33,8 +33,8 @@
       }
 
       .container {
-        background: rgb(244 224 224 / 40%);
-        backdrop-filter: blur(20px);
+        background: rgb(244 224 224 / 20%);
+        backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(20px);
         color: var(--text-main);
         padding: 30px;
@@ -839,6 +839,7 @@
   </head>
 
   <body>
+    <audio id="coinFlipAudio" src="audio/coin-flip.mp3"></audio>
     <div
       style="
         position: absolute;
@@ -859,7 +860,6 @@
       />
       Audio
     </div>
-    <audio id="coinFlipAudio" src="audio/coin-flip.mp3"></audio>
     <div id="audios"></div>
     <div class="container">
       <div id="start-container">
@@ -968,7 +968,7 @@
           <span>←</span> Back
         </button>
         <button onclick="showScoreBoard()" class="score-board-btn">
-          Score Board
+          Score
         </button>
         <div id="innings" class="innings-badge"></div>
       </div>
