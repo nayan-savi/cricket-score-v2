@@ -1690,10 +1690,10 @@
                 `;
           popupButtons.appendChild(div);
         }
-
-        for (let i = 0; i <= 6; i++) {
+        let offset = type == "BY" ? 1 : 0;
+        for (let i = offset; i <= 6; i++) {
           const btn = document.createElement("button");
-          btn.textContent = `${type} + ${i}`;
+          btn.textContent = `${i}`;
           btn.onclick = () => {
             let isBatsmanRun = false;
             if (type === "NB") {
@@ -1730,7 +1730,11 @@
 
       function handleExtra(type, color, runs, isBatsmanRun = false) {
         logAction(runs, color, type);
-        score += 1 + runs; // 1 for the extra plus any additional runs
+        if (type === "BY") {
+          score += runs; // Byes add to team score but not batsman
+        } else {
+          score += 1 + runs; // 1 for the extra plus any additional runs
+        }
 
         if (isBatsmanRun && runs > 0) {
           const currentPlayerKey = currentStriker;
